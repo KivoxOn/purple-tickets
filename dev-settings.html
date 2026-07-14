@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>DevSettings - Purple Studios</title>
+    <style>
+        body { font-family: sans-serif; background: #2a0052; color: white; padding: 20px; }
+        .container { background: #3d0075; padding: 20px; border-radius: 10px; border: 2px solid #ffcc00; max-width: 600px; margin: auto; }
+        input, select { padding: 10px; width: 90%; margin: 5px 0; border-radius: 5px; border: none; font-family: inherit; }
+        .pedido-card { background: #4a008c; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 5px solid #ffcc00; position: relative; display: flex; justify-content: space-between; align-items: center; }
+        .btn-verde { background: #32cd32; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-vermelho { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-preto { background: #111; color: #ff00ff; border: 1px solid #ff00ff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-verde:active, .btn-vermelho:active, .btn-preto:active { transform: scale(0.95); }
+        hr { border: 1px solid #5500aa; margin: 20px 0; }
+        
+        .img-comprovante {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            border: 2px solid #ffcc00;
+            margin-top: 10px;
+            display: block;
+            transition: 0.3s;
+        }
+        
+        .img-comprovante:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        /* Organizando a data e hora lado a lado na criação */
+        .linha-dupla { display: flex; gap: 10px; width: 94%; }
+        .linha-dupla input { width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ DevSettings</h1>
+        <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
+        <hr>
+
+        <h2>📡 Atualizar Status</h2>
+        <select id="select-meetup"><option value="">Carregando...</option></select>
+        <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
+        <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
+
+        <hr>
+        <h2>🗑️ Gerenciar Meetups Cadastrados</h2>
+        <div id="lista-gerenciar-meetups">Carregando...</div>
+
+        <hr>
+        <h2>📦 Gerenciar Pedidos de Ingressos</h2>
+        <button onclick="window.limparTudo()" class="btn-preto" style="width: 100%; margin-bottom: 10px; color: red; border-color: red;">🗑️ Limpar TODOS os pedidos</button>
+        <div id="lista-pedidos">Carregando...</div>
+
+        <hr>
+        <h2>📅 Criar Novo Meetup</h2>
+        <input type="text" id="m-nome" placeholder="Nome do Evento (Ex: Creators Q&A)">
+        <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
+        
+        <!-- Horário ao lado da Data -->
+        <div class="linha-dupla">
+            <input type="date" id="m-data" title="Data do Evento">
+            <input type="time" id="m-horario" title="Horário do Evento">
+        </div>
+
+        <input type="text" id="m-link" placeholder="Link da Chamada (Ex: meet.google.com/...)">
+        <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
+    </div>
+
+    <!-- MODAL DE IMAGEM EM TELA CHEIA -->
+    <div id="modalImagemFullscreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index: 9999; flex-direction:column;" onclick="window.fecharImagemFullscreen()">
+        <span style="color:white; position:absolute; top:20px; right:30px; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
+        
+        <!-- A imagem ampliada com a borda roxa do estúdio -->
+        <img id="imagemAmpliada" style="max-width:95%; max-height:85%; border-radius:10px; border: 3px solid #7a28cb; box-shadow: 0 0 20px rgba(122, 40, 203, 0.5);">
+        
+        <p style="color: #d1b3ff; margin-top: 15px; font-weight: bold; font-family: sans-serif;">Toque em qualquer lugar para fechar</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-y0KtCLH0g65Q7nCb31avCx5G3iKekLc",
+            authDomain: "purple-tickets.firebaseapp.com",
+            projectId: "purple-tickets",
+            storageBucket: "purple-tickets.firebasestorage.app",
+            messagingSenderId: "808397510409",
+            appId: "1:808397510409:web:cee298484e7f6db48da5d8",
+            measurementId: "G-CSY3V2WCZL"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Funções da Tela Cheia
+        window.abrirImagemFullscreen = function(base64Src) {
+            document.getElementById('imagemAmpliada').src = base64Src;
+            document.getElementById('modalImagemFullscreen').style.display = 'flex';
+        };
+
+        window.fecharImagemFullscreen = function() {
+            document.getElementById('modalImagemFullscreen').style.display = 'none';
+            document.getElementById('imagemAmpliada').src = ""; 
+        };
+
+        // --- GERENCIAR MEETUPS ---
+        window.carregarGerenciamentoMeetups = async function() {
+            const container = document.getElementById('lista-gerenciar-meetups');
+            const snapshot = await getDocs(collection(db, "meetups"));
+            container.innerHTML = "";
+            snapshot.forEach(docSnap => {
+                const d = docSnap.data();
+                container.innerHTML += `
+                    <div class="pedido-card">
+                        <div>
+                            <span><strong>${d.nome}</strong></span><br>
+                            <span style="font-size: 12px; color: #ffcc00;">⏰ ${d.data || 'S/D'} às ${d.horario || 'S/H'}</span>
+                        </div>
+                        <button onclick="window.deletarMeetup('${docSnap.id}')" class="btn-vermelho">🗑️ Apagar</button>
+                    </div>
+                `;
+            });
+        }
+
+        window.deletarMeetup = async function(id) {
+            if(confirm("Tem certeza que deseja apagar este evento?")) {
+                await deleteDoc(doc(db, "meetups", id));
+                window.carregarGerenciamentoMeetups();
+                window.carregarMeetupsSelect();
+            }
+        }
+
+        // --- PEDIDOS ---
+        window.carregarPedidos = async function() {
+            const container = document.getElementById('lista-pedidos');
+            const querySnapshot = await getDocs(collection(db, "pedidos"));
+            container.innerHTML = "";
+            
+            querySnapshot.forEach((docSnap) => {
+                const dados = docSnap.data();
+                
+                const emailUsuario = dados.email || dados.compradorEmail || dados.Email || 'Não informado';
+                const idiomaUsuario = dados.idioma || dados.compradorIdioma || dados.Language || dados.language || 'Não informado';
+                
+                // Puxa a variável correta gerada pelo seu script.js (comprovanteFoto) ou outras antigas
+                const urlComprovante = dados.comprovanteFoto || dados.comprovante || dados.comprovantePix || dados.comprovanteUrl || dados.imagem || dados.foto || dados.url || '';
+                
+                let tagImagem = `<p style="color:#ffcc00; font-size:13px; margin: 5px 0;">⚠️ O comprador não enviou a imagem ou o script.js falhou em salvar.</p>`;
+                
+                // CORRIGIDO: Agora aceita links (http) e imagens convertidas (data:image)
+                if (urlComprovante && (urlComprovante.startsWith('http') || urlComprovante.startsWith('data:image'))) {
+                    tagImagem = `<img src="${urlComprovante}" class="img-comprovante" alt="Comprovante Pix" style="cursor: pointer;" onclick="window.abrirImagemFullscreen('${urlComprovante}')" title="Clique para ampliar o comprovante">`;
+                }
+
+                container.innerHTML += `
+                    <div class="pedido-card" style="flex-direction: column; align-items: flex-start; width: 90%;">
+                        <div style="font-size: 16px; margin-bottom: 5px;"><strong>Evento:</strong> ${dados.meetup || 'Evento Desconhecido'}</div>
+                        <div style="font-size: 14px; color: #ffcc00;"><strong>Comprador:</strong> ${dados.nome || 'Desconhecido'}</div>
+                        <div style="font-size: 13px; color: #d1b3ff;"><strong>E-mail:</strong> ${emailUsuario}</div>
+                        <div style="font-size: 13px; color: #d1b3ff;"><strong>Idioma:</strong> ${idiomaUsuario}</div>
+                        <div style="font-size: 13px; color: #ff00ff; font-weight: bold; margin-top: 3px;"><strong>Status Atual:</strong> ${dados.status || 'Pendente'}</div>
+                        
+                        <!-- EXIBIÇÃO DO COMPROVANTE CLICÁVEL -->
+                        ${tagImagem}
+                        
+                        <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%;">
+                            <button onclick="window.aceitarPedido('${docSnap.id}')" class="btn-verde">✔️ Aceitar</button>
+                            <button onclick="window.recusarPedido('${docSnap.id}')" class="btn-vermelho">❌ Recusar</button>
+                            <button onclick="window.banirUsuario('${emailUsuario}', '${docSnap.id}')" class="btn-preto">🚫 Ban</button>
+                            <button onclick="window.excluirPedido('${docSnap.id}')" class="btn-vermelho" style="background:#555;">🗑️ Excluir</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.excluirPedido = async function(id) {
+            if(confirm("Apagar registro deste pedido?")) { await deleteDoc(doc(db, "pedidos", id)); window.carregarPedidos(); }
+        }
+
+        window.limparTudo = async function() {
+            if(confirm("CUIDADO: Apagar absolutamente todos os pedidos da lista?")) {
+                const snap = await getDocs(collection(db, "pedidos"));
+                snap.forEach(d => deleteDoc(doc(db, "pedidos", d.id)));
+                window.carregarPedidos();
+            }
+        }
+
+        window.banirUsuario = async function(email, pedidoId) {
+            if(!email || email === 'Não informado') return alert("Não é possível banir um usuário sem e-mail!");
+            if(confirm(`Deseja realmente BANIR o usuário (${email})?`)) {
+                await addDoc(collection(db, "banidos"), { email: email, dataBanimento: new Date().toISOString() });
+                await updateDoc(doc(db, "pedidos", pedidoId), { status: "Banido" });
+                alert(`O usuário ${email} foi adicionado à lista de Ban.`);
+                window.carregarPedidos();
+            }
+        }
+
+        window.carregarMeetupsSelect = async function() {
+            const select = document.getElementById('select-meetup');
+            const snap = await getDocs(collection(db, "meetups"));
+            select.innerHTML = '<option value="">Selecione um Meetup...</option>';
+            snap.forEach(d => select.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
+        }
+
+        window.atualizarStatus = async function() {
+            const id = document.getElementById('select-meetup').value;
+            const msg = document.getElementById('novo-status').value;
+            if(!id || !msg) return alert("Selecione e digite a msg!");
+            await updateDoc(doc(db, "meetups", id), { mensagemStatus: msg });
+            alert("Status atualizado!");
+        }
+
+        // --- SALVAR MEETUP ---
+        window.salvarMeetup = async function() {
+            const nome = document.getElementById('m-nome').value;
+            const preco = document.getElementById('m-preco').value;
+            const data = document.getElementById('m-data').value;
+            const horario = document.getElementById('m-horario').value;
+            const linkMeet = document.getElementById('m-link').value;
+            
+            if(!nome || !linkMeet || !horario || !data) {
+                return alert("Preencha todos os campos, incluindo a DATA e o HORÁRIO!");
+            }
+            
+            await addDoc(collection(db, "meetups"), { 
+                nome, 
+                preco, 
+                data, 
+                horario, 
+                linkMeet, 
+                mensagemStatus: "Tudo certo para o evento!" 
+            });
+            alert("Meetup criado com sucesso!");
+            location.reload();
+        }
+
+        window.aceitarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Aprovado" }); window.carregarPedidos(); }
+        window.recusarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Recusado" }); window.carregarPedidos(); }
+
+        window.onload = function() {
+            window.carregarPedidos();
+            window.carregarMeetupsSelect();
+            window.carregarGerenciamentoMeetups();
+        }
+    </script>
+</body>
+</html>
