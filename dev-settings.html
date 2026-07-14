@@ -14,74 +14,74 @@
         .btn-verde:active, .btn-vermelho:active, .btn-preto:active { transform: scale(0.95); }
         hr { border: 1px solid #5500aa; margin: 20px 0; }
         
-        .img-comprovante {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 8px;
-            border: 2px solid #ffcc00;
-            margin-top: 10px;
-            display: block;
-            transition: 0.3s;
-        }
-        
-        .img-comprovante:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
-        }
-
-        /* Organizando a data e hora lado a lado na criação */
+        .img-comprovante { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px solid #ffcc00; margin-top: 10px; display: block; transition: 0.3s; }
+        .img-comprovante:hover { transform: scale(1.02); box-shadow: 0 0 10px rgba(255, 204, 0, 0.5); }
         .linha-dupla { display: flex; gap: 10px; width: 94%; }
         .linha-dupla input { width: 100%; }
+
+        /* Estilo da tela de login */
+        .login-box { background: #3d0075; padding: 30px; border-radius: 10px; border: 2px solid #ffcc00; max-width: 400px; margin: 50px auto; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⚙️ DevSettings</h1>
-        <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
-        <hr>
 
-        <h2>📡 Atualizar Status</h2>
-        <select id="select-meetup"><option value="">Carregando...</option></select>
-        <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
-        <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
+    <!-- 1. TELA DE LOGIN (Aparece primeiro) -->
+    <div id="login-screen" class="login-box" style="display: none;">
+        <h2>🔐 Acesso Admin</h2>
+        <p style="color: #d1b3ff; font-size: 14px;">Faça login para gerenciar o sistema</p>
+        <input type="email" id="login-email" placeholder="E-mail do Administrador">
+        <input type="password" id="login-senha" placeholder="Senha">
+        <button onclick="window.loginAdmin()" class="btn-verde" style="width: 100%; margin-top: 10px; padding: 10px;">Entrar no Painel</button>
+        <button onclick="window.location.href='index.html'" style="margin-top: 15px; padding: 10px; width: 100%; cursor:pointer;">Voltar ao Site</button>
+    </div>
 
-        <hr>
-        <h2>🗑️ Gerenciar Meetups Cadastrados</h2>
-        <div id="lista-gerenciar-meetups">Carregando...</div>
+    <!-- 2. O PAINEL DE CONTROLE (Fica escondido até logar) -->
+    <div id="painel-admin" style="display: none;">
+        <div class="container">
+            <h1>⚙️ DevSettings</h1>
+            <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
+            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Sair (Logout)</button>
+            <hr>
 
-        <hr>
-        <h2>📦 Gerenciar Pedidos de Ingressos</h2>
-        <button onclick="window.limparTudo()" class="btn-preto" style="width: 100%; margin-bottom: 10px; color: red; border-color: red;">🗑️ Limpar TODOS os pedidos</button>
-        <div id="lista-pedidos">Carregando...</div>
+            <h2>📡 Atualizar Status</h2>
+            <select id="select-meetup"><option value="">Carregando...</option></select>
+            <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
+            <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
 
-        <hr>
-        <h2>📅 Criar Novo Meetup</h2>
-        <input type="text" id="m-nome" placeholder="Nome do Evento (Ex: Creators Q&A)">
-        <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
-        
-        <!-- Horário ao lado da Data -->
-        <div class="linha-dupla">
-            <input type="date" id="m-data" title="Data do Evento">
-            <input type="time" id="m-horario" title="Horário do Evento">
+            <hr>
+            <h2>🗑️ Gerenciar Meetups Cadastrados</h2>
+            <div id="lista-gerenciar-meetups">Carregando...</div>
+
+            <hr>
+            <h2>📦 Gerenciar Pedidos de Ingressos</h2>
+            <button onclick="window.limparTudo()" class="btn-preto" style="width: 100%; margin-bottom: 10px; color: red; border-color: red;">🗑️ Limpar TODOS os pedidos</button>
+            <div id="lista-pedidos">Carregando...</div>
+
+            <hr>
+            <h2>📅 Criar Novo Meetup</h2>
+            <input type="text" id="m-nome" placeholder="Nome do Evento (Ex: Creators Q&A)">
+            <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
+            <div class="linha-dupla">
+                <input type="date" id="m-data" title="Data do Evento">
+                <input type="time" id="m-horario" title="Horário do Evento">
+            </div>
+            <input type="text" id="m-link" placeholder="Link da Chamada (Ex: meet.google.com/...)">
+            <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
         </div>
-
-        <input type="text" id="m-link" placeholder="Link da Chamada (Ex: meet.google.com/...)">
-        <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
     </div>
 
     <!-- MODAL DE IMAGEM EM TELA CHEIA -->
     <div id="modalImagemFullscreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index: 9999; flex-direction:column;" onclick="window.fecharImagemFullscreen()">
         <span style="color:white; position:absolute; top:20px; right:30px; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
-        
-        <!-- A imagem ampliada com a borda roxa do estúdio -->
         <img id="imagemAmpliada" style="max-width:95%; max-height:85%; border-radius:10px; border: 3px solid #7a28cb; box-shadow: 0 0 20px rgba(122, 40, 203, 0.5);">
-        
         <p style="color: #d1b3ff; margin-top: 15px; font-weight: bold; font-family: sans-serif;">Toque em qualquer lugar para fechar</p>
     </div>
 
+    <!-- SCRIPT PRINCIPAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-y0KtCLH0g65Q7nCb31avCx5G3iKekLc",
@@ -92,10 +92,54 @@
             appId: "1:808397510409:web:cee298484e7f6db48da5d8",
             measurementId: "G-CSY3V2WCZL"
         };
+        
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth();
 
-        // Funções da Tela Cheia
+        // -----------------------------------------
+        // SISTEMA DE LOGIN E AUTENTICAÇÃO
+        // -----------------------------------------
+        window.loginAdmin = async function() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, senha);
+                alert("Login efetuado com sucesso!");
+            } catch (e) {
+                alert("Erro no login! Verifique e-mail/senha. Erro: " + e.message);
+            }
+        }
+
+        window.sairAdmin = async function() {
+            await signOut(auth);
+            alert("Você saiu do painel.");
+        }
+
+        // O "Segurança" da página: Fica vigiando se você está logado
+        onAuthStateChanged(auth, (user) => {
+            // 🚨 MUDE O E-MAIL ABAIXO PARA O SEU E-MAIL REAL QUE VOCÊ CADASTROU NO FIREBASE! 🚨
+            if (user && user.email === 'SEU_EMAIL_AQUI@gmail.com') {
+                
+                // Libera a tela
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('painel-admin').style.display = 'block';
+                
+                // Carrega os dados do banco
+                window.carregarPedidos();
+                window.carregarMeetupsSelect();
+                window.carregarGerenciamentoMeetups();
+            } else {
+                // Bloqueia a tela
+                document.getElementById('login-screen').style.display = 'block';
+                document.getElementById('painel-admin').style.display = 'none';
+            }
+        });
+
+
+        // -----------------------------------------
+        // FUNÇÕES DO PAINEL (Só rodam se logado)
+        // -----------------------------------------
         window.abrirImagemFullscreen = function(base64Src) {
             document.getElementById('imagemAmpliada').src = base64Src;
             document.getElementById('modalImagemFullscreen').style.display = 'flex';
@@ -106,7 +150,6 @@
             document.getElementById('imagemAmpliada').src = ""; 
         };
 
-        // --- GERENCIAR MEETUPS ---
         window.carregarGerenciamentoMeetups = async function() {
             const container = document.getElementById('lista-gerenciar-meetups');
             const snapshot = await getDocs(collection(db, "meetups"));
@@ -133,7 +176,6 @@
             }
         }
 
-        // --- PEDIDOS ---
         window.carregarPedidos = async function() {
             const container = document.getElementById('lista-pedidos');
             const querySnapshot = await getDocs(collection(db, "pedidos"));
@@ -141,16 +183,12 @@
             
             querySnapshot.forEach((docSnap) => {
                 const dados = docSnap.data();
-                
                 const emailUsuario = dados.email || dados.compradorEmail || dados.Email || 'Não informado';
                 const idiomaUsuario = dados.idioma || dados.compradorIdioma || dados.Language || dados.language || 'Não informado';
-                
-                // Puxa a variável correta gerada pelo seu script.js (comprovanteFoto) ou outras antigas
                 const urlComprovante = dados.comprovanteFoto || dados.comprovante || dados.comprovantePix || dados.comprovanteUrl || dados.imagem || dados.foto || dados.url || '';
                 
                 let tagImagem = `<p style="color:#ffcc00; font-size:13px; margin: 5px 0;">⚠️ O comprador não enviou a imagem ou o script.js falhou em salvar.</p>`;
                 
-                // CORRIGIDO: Agora aceita links (http) e imagens convertidas (data:image)
                 if (urlComprovante && (urlComprovante.startsWith('http') || urlComprovante.startsWith('data:image'))) {
                     tagImagem = `<img src="${urlComprovante}" class="img-comprovante" alt="Comprovante Pix" style="cursor: pointer;" onclick="window.abrirImagemFullscreen('${urlComprovante}')" title="Clique para ampliar o comprovante">`;
                 }
@@ -163,7 +201,6 @@
                         <div style="font-size: 13px; color: #d1b3ff;"><strong>Idioma:</strong> ${idiomaUsuario}</div>
                         <div style="font-size: 13px; color: #ff00ff; font-weight: bold; margin-top: 3px;"><strong>Status Atual:</strong> ${dados.status || 'Pendente'}</div>
                         
-                        <!-- EXIBIÇÃO DO COMPROVANTE CLICÁVEL -->
                         ${tagImagem}
                         
                         <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%;">
@@ -214,7 +251,6 @@
             alert("Status atualizado!");
         }
 
-        // --- SALVAR MEETUP ---
         window.salvarMeetup = async function() {
             const nome = document.getElementById('m-nome').value;
             const preco = document.getElementById('m-preco').value;
@@ -227,57 +263,22 @@
             }
             
             await addDoc(collection(db, "meetups"), { 
-                nome, 
-                preco, 
-                data, 
-                horario, 
-                linkMeet, 
-                mensagemStatus: "Tudo certo para o evento!" 
+                nome, preco, data, horario, linkMeet, mensagemStatus: "Tudo certo para o evento!" 
             });
             alert("Meetup criado com sucesso!");
-            location.reload();
+            window.carregarMeetupsSelect();
+            window.carregarGerenciamentoMeetups();
+            
+            // Limpa os campos após salvar
+            document.getElementById('m-nome').value = '';
+            document.getElementById('m-preco').value = '';
+            document.getElementById('m-data').value = '';
+            document.getElementById('m-horario').value = '';
+            document.getElementById('m-link').value = '';
         }
 
         window.aceitarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Aprovado" }); window.carregarPedidos(); }
         window.recusarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Recusado" }); window.carregarPedidos(); }
-
-        window.onload = function() {
-            window.carregarPedidos();
-            window.carregarMeetupsSelect();
-            window.carregarGerenciamentoMeetups();
-        }
-    // 1. Importe o Auth no topo junto com os outros
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-
-const auth = getAuth();
-
-// 2. Função de Login
-window.loginAdmin = async function() {
-    const email = document.getElementById('login-email').value;
-    const senha = document.getElementById('login-senha').value;
-    try {
-        await signInWithEmailAndPassword(auth, email, senha);
-        location.reload(); // Recarrega a página agora autenticado
-    } catch (e) {
-        alert("Erro no login: " + e.message);
-    }
-}
-
-// 3. Monitorar se você está logado (o "segurança" da página)
-onAuthStateChanged(auth, (user) => {
-    if (user && user.email === 'SEU_EMAIL_AQUI@gmail.com') { // Coloque seu e-mail aqui!
-        // SE ESTIVER LOGADO, MOSTRA O PAINEL
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('painel-admin').style.display = 'block';
-        window.carregarPedidos();
-        window.carregarMeetupsSelect();
-        window.carregarGerenciamentoMeetups();
-    } else {
-        // SE NÃO, MOSTRA A TELA DE LOGIN
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('painel-admin').style.display = 'none';
-    }
-});
 
     </script>
 </body>
