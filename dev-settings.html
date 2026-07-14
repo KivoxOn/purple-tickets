@@ -246,6 +246,39 @@
             window.carregarMeetupsSelect();
             window.carregarGerenciamentoMeetups();
         }
+    // 1. Importe o Auth no topo junto com os outros
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+const auth = getAuth();
+
+// 2. Função de Login
+window.loginAdmin = async function() {
+    const email = document.getElementById('login-email').value;
+    const senha = document.getElementById('login-senha').value;
+    try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        location.reload(); // Recarrega a página agora autenticado
+    } catch (e) {
+        alert("Erro no login: " + e.message);
+    }
+}
+
+// 3. Monitorar se você está logado (o "segurança" da página)
+onAuthStateChanged(auth, (user) => {
+    if (user && user.email === 'SEU_EMAIL_AQUI@gmail.com') { // Coloque seu e-mail aqui!
+        // SE ESTIVER LOGADO, MOSTRA O PAINEL
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('painel-admin').style.display = 'block';
+        window.carregarPedidos();
+        window.carregarMeetupsSelect();
+        window.carregarGerenciamentoMeetups();
+    } else {
+        // SE NÃO, MOSTRA A TELA DE LOGIN
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('painel-admin').style.display = 'none';
+    }
+});
+
     </script>
 </body>
 </html>
