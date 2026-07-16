@@ -19,28 +19,26 @@
         .linha-dupla { display: flex; gap: 10px; width: 94%; }
         .linha-dupla input { width: 100%; }
 
-        /* Estilo da tela de login */
-        .login-box { background: #3d0075; padding: 30px; border-radius: 10px; border: 2px solid #ffcc00; max-width: 400px; margin: 50px auto; text-align: center; }
+        /* Estilo da tela de carregamento */
+        #tela-carregamento { text-align: center; margin-top: 50px; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #ffcc00; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- 1. TELA DE LOGIN (Aparece primeiro) -->
-<div id="login-screen" class="login-box" style="display: block;">
-        <h2>🔐 Acesso Admin</h2>
-        <p style="color: #d1b3ff; font-size: 14px;">Faça login para gerenciar o sistema</p>
-        <input type="email" id="login-email" placeholder="E-mail do Administrador">
-        <input type="password" id="login-senha" placeholder="Senha">
-        <button onclick="window.loginAdmin()" class="btn-verde" style="width: 100%; margin-top: 10px; padding: 10px;">Entrar no Painel</button>
-        <button onclick="window.location.href='index.html'" style="margin-top: 15px; padding: 10px; width: 100%; cursor:pointer;">Voltar ao Site</button>
+    <!-- 1. TELA DE CARREGAMENTO (Aparece enquanto o Firebase checa o login) -->
+    <div id="tela-carregamento">
+        <div class="spinner"></div>
+        <h2>Verificando credenciais...</h2>
     </div>
 
-    <!-- 2. O PAINEL DE CONTROLE (Fica escondido até logar) -->
+    <!-- 2. O PAINEL DE CONTROLE (Escondido até confirmar o login) -->
     <div id="painel-admin" style="display: none;">
         <div class="container">
             <h1>⚙️ DevSettings</h1>
             <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
-            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Sair (Logout)</button>
+            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Sair do Painel (Logout)</button>
             <hr>
 
             <h2>📡 Atualizar Status</h2>
@@ -81,7 +79,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-y0KtCLH0g65Q7nCb31avCx5G3iKekLc",
@@ -98,31 +96,12 @@
         const auth = getAuth();
 
         // -----------------------------------------
-        // SISTEMA DE LOGIN E AUTENTICAÇÃO
+        // O "SEGURANÇA" DA PÁGINA
         // -----------------------------------------
-        window.loginAdmin = async function() {
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, senha);
-                alert("Login efetuado com sucesso!");
-            } catch (e) {
-                alert("Erro no login! Verifique e-mail/senha. Erro: " + e.message);
-            }
-        }
-
-        window.sairAdmin = async function() {
-            await signOut(auth);
-            alert("Você saiu do painel.");
-        }
-
-        // O "Segurança" da página: Fica vigiando se você está logado
         onAuthStateChanged(auth, (user) => {
-            // 🚨 MUDE O E-MAIL ABAIXO PARA O SEU E-MAIL REAL QUE VOCÊ CADASTROU NO FIREBASE! 🚨
-            if (user && user.email === 'fernandopcbung123@gmail.com' {
-                
-                // Libera a tela
-                document.getElementById('login-screen').style.display = 'none';
+            if (user) {
+                // Se o usuário veio logado lá da tela inicial, esconde o carregamento e mostra o painel
+                document.getElementById('tela-carregamento').style.display = 'none';
                 document.getElementById('painel-admin').style.display = 'block';
                 
                 // Carrega os dados do banco
@@ -130,15 +109,18 @@
                 window.carregarMeetupsSelect();
                 window.carregarGerenciamentoMeetups();
             } else {
-                // Bloqueia a tela
-                document.getElementById('login-screen').style.display = 'block';
-                document.getElementById('painel-admin').style.display = 'none';
+                // Se tentar acessar o link direto sem fazer login na tela inicial, expulsa pro index
+                window.location.href = 'index.html';
             }
         });
 
+        window.sairAdmin = async function() {
+            await signOut(auth);
+            // Ao sair, o "segurança" acima vai perceber que você deslogou e te jogar pro index automaticamente
+        }
 
         // -----------------------------------------
-        // FUNÇÕES DO PAINEL (Só rodam se logado)
+        // FUNÇÕES DO PAINEL
         // -----------------------------------------
         window.abrirImagemFullscreen = function(base64Src) {
             document.getElementById('imagemAmpliada').src = base64Src;
