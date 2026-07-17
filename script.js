@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, query, where } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+// Adicionamos doc e getDoc para ler a senha da loja
+import { getFirestore, collection, getDocs, addDoc, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -17,16 +18,50 @@ const db = getFirestore(app);
 const auth = getAuth(app); 
 
 // ===================================
-// 1. FUNÇÃO DAS ABAS
+// 1. FUNÇÃO DAS ABAS (Atualizada para esconder a Loja)
 // ===================================
 window.mudarAba = function(abaNome) {
     document.getElementById('aba-meetups').classList.remove('ativa');
     document.getElementById('aba-status').classList.remove('ativa');
+    document.getElementById('aba-loja').classList.remove('ativa'); // Esconde a loja sempre que mudar de aba
+    
     document.getElementById('btn-meetups').classList.remove('active');
     document.getElementById('btn-status').classList.remove('active');
 
     document.getElementById('aba-' + abaNome).classList.add('ativa');
-    document.getElementById('btn-' + abaNome).classList.add('active');
+    if (document.getElementById('btn-' + abaNome)) {
+        document.getElementById('btn-' + abaNome).classList.add('active');
+    }
+};
+
+// ===================================
+// 1.1 ACESSO RESTRITO DA LOJA VIP
+// ===================================
+window.abrirLojaVIP = async function() {
+    const codigoDigitado = prompt("🔒 Área Restrita!\nDigite o código de acesso exclusivo de quem participou dos Meetups:");
+    
+    if (!codigoDigitado) return; // Cancela se não digitar nada
+
+    try {
+        const docRef = doc(db, "lojaConfig", "acesso");
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            const codigoCerto = docSnap.data().codigo;
+            
+            if (codigoDigitado.trim() === codigoCerto) {
+                alert("🎉 Acesso Liberado! Bem-vindo à Loja Secreta da Purple Studios!");
+                window.mudarAba('loja'); // Mostra a aba da loja escondida
+            } else {
+                alert("❌ Código incorreto! O acesso é exclusivo para membros VIPS.");
+            }
+        } else {
+            alert("⚠️ A loja ainda não possui uma senha configurada. Fale com o Administrador.");
+        }
+    } catch(e) {
+        console.error("Erro ao checar senha da loja: ", e);
+        alert("Erro no servidor ao validar a senha.");
+    }
 };
 
 window.carregarMeetups = async function() {
@@ -142,14 +177,13 @@ window.finalizarCompra = async function() {
         return; 
     }
 
-    // 2. COMPRESSÃO E ENVIO DO COMPROVANTE (ATUALIZADO)
+    // 2. COMPRESSÃO E ENVIO DO COMPROVANTE
     const reader = new FileReader();
     reader.onload = function(evento) {
         const img = new Image();
         img.onload = async function() {
             try {
                 const canvas = document.createElement('canvas');
-                // Mantém a proporção mas limita a largura para evitar estouro de memória
                 const MAX_WIDTH = 600;
                 let width = img.width;
                 let height = img.height;
@@ -164,15 +198,12 @@ window.finalizarCompra = async function() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Converte com qualidade reduzida para garantir envio rápido
                 const base64Foto = canvas.toDataURL('image/jpeg', 0.5); 
 
-                // Verifica se gerou algo antes de enviar
                 if (!base64Foto || base64Foto.length < 100) {
                     throw new Error("Falha na geração da imagem (Base64 vazio).");
                 }
 
-                // Atualiza o estado visual
                 document.getElementById('etapa3').style.display = 'none';
                 document.getElementById('etapa4').style.display = 'block';
 
@@ -199,5 +230,4 @@ window.finalizarCompra = async function() {
     reader.readAsDataURL(arquivoInput.files[0]);
 };
 
-// Execução direta ao carregar o módulo na página
 window.carregarMeetups();
