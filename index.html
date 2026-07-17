@@ -21,6 +21,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .btn-aba {
@@ -190,7 +191,6 @@
             transform: scale(1.1); /* Faz o ícone crescer um pouquinho ao passar o mouse/tocar */
             box-shadow: 0 4px 8px rgba(122, 40, 203, 0.4); /* Sombra roxa no hover */
         }
-    
     </style>
 </head>
 <body>
@@ -199,6 +199,8 @@
     <div class="TOP-BAR">
         <button id="btn-meetups" class="btn-aba active" onclick="window.mudarAba('meetups')">🎟️ Meetups</button>
         <button id="btn-status" class="btn-aba" onclick="window.mudarAba('status')">📡 Status</button>
+        <!-- BOTÃO DA LOJA VIP -->
+        <button id="btn-loja" class="btn-aba" onclick="window.abrirLojaVIP()" style="background: #111; color: #ff00ff; border: 2px solid #ff00ff;">🛒 Loja VIP</button>
     </div>
 
     <!-- TÍTULO COM BANNER VERMELHO -->
@@ -234,6 +236,25 @@
             </div>
         </div>
 
+        <!-- ABA LOJA VIP (Oculta por padrão) -->
+        <div id="aba-loja" class="tab-content">
+            <div style="background: #111; padding: 30px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
+                <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🛒 LOJA SECRETA VIP</h2>
+                <p style="color: #d1b3ff; font-size: 15px;">Itens de edição limitada exclusivos para quem participou do Meetup!</p>
+                
+                <div style="margin-top: 20px;">
+                    <!-- Exemplo de Produto VIP -->
+                    <div class="item-lista" style="background: #2a0052; color: white; border: 1px solid #7a28cb;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: 900; color: #ffcc00;">👑 Cargo "VIP Meetup" no Discord</div>
+                            <div style="font-size: 14px; color: #aaa;">Exclusivo</div>
+                        </div>
+                        <button class="btn-comprar" style="background: #ff00ff;" onclick="alert('Em breve a função de resgatar itens será ativada!')">Resgatar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- BOTÃO DEV -->
@@ -245,14 +266,10 @@
     <div class="copyright-text">
         © 2026 Purple Studios. Todos os direitos reservados.
         
-        <!-- Ícones do YouTube e TikTok -->
         <div style="margin-top: 15px; display: flex; justify-content: center; gap: 20px;">
-            <!-- YouTube -->
             <a href="https://youtube.com/@purplestudiosbfar" target="_blank" title="Visite nosso canal no YouTube">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJ3msgS3z2YJl6kqk8YOnt78I5cOZE1GenXDvDFrBBg&s=10" alt="YouTube Purple Studios" class="social-icon">
             </a>
-            
-            <!-- TikTok -->
             <a href="https://www.tiktok.com/@purplestudiosofficialtk?_r=1&_t=ZS-980pn0EUBg0" target="_blank" title="Siga-nos no TikTok">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg-JWMAX1apzfQmivmnEyvCijkgY0i-fbkVQPn8nDwrg&s=10" alt="TikTok Purple Studios" class="social-icon">
             </a>
@@ -263,10 +280,8 @@
     <div id="compraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 2000;">
         <div style="background:white; padding:20px; border-radius:15px; color:black; text-align:center; max-width: 350px; width: 90%; border: 3px solid #7a28cb;">
             
-            <!-- ETAPA 0: TERMOS COM LINKS CLICÁVEIS -->
             <div id="etapa0">
                 <h3 style="color:#7a28cb; margin-top:0;">Termos do Meetup</h3>
-                
                 <div style="text-align: left; margin: 15px 0; font-size:15px; padding-left: 10px;">
                     <label style="display: block; margin-bottom: 10px;">
                         <input type="checkbox" id="checkTermos"> Concordo com os <a href="termos.html" target="_blank" style="color: #9933ff; font-weight: bold; text-decoration: underline;">termos</a>
@@ -278,35 +293,32 @@
                         <input type="checkbox" id="checkRegras"> Vou respeitar as <a href="regras.html" target="_blank" style="color: #9933ff; font-weight: bold; text-decoration: underline;">regras</a>
                     </label>
                 </div>
-
                 <button onclick="window.irParaEtapa1()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
             </div>
 
-            <!-- ETAPA 1: DADOS -->
             <div id="etapa1" style="display:none;">
                 <h3 style="color:#7a28cb; margin-top:0;">Seus Dados</h3>
                 <input type="text" id="compradorNome" placeholder="Seu Nome/Nick" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px; outline:none;">
                 <input type="email" id="compradorEmail" placeholder="Seu E-mail (Gmail)" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px; outline:none;">
-<select id="compradorIdioma" style="width:91%; padding:10px; margin-bottom:20px; border:2px solid #ccc; border-radius:5px; outline:none; background:white; font-size:14px; font-weight:bold;">
-    <option value="" disabled selected>Selecione seu Idioma</option>
-    <option value="pt-BR">Português (Brasil)</option>
-    <option value="en">English (Inglês)</option>
-    <option value="es">Español (Espanhol)</option>
-    <option value="fr">Français (Francês)</option>
-    <option value="de">Deutsch (Alemão)</option>
-    <option value="it">Italiano</option>
-    <option value="ja">日本語 (Japonês)</option>
-    <option value="ko">한국어 (Coreano)</option>
-    <option value="zh">中文 (Chinês)</option>
-    <option value="ru">Русский (Russo)</option>
-    <option value="ar">العربية (Árabe)</option>
-</select>
+                <select id="compradorIdioma" style="width:91%; padding:10px; margin-bottom:20px; border:2px solid #ccc; border-radius:5px; outline:none; background:white; font-size:14px; font-weight:bold;">
+                    <option value="" disabled selected>Selecione seu Idioma</option>
+                    <option value="pt-BR">Português (Brasil)</option>
+                    <option value="en">English (Inglês)</option>
+                    <option value="es">Español (Espanhol)</option>
+                    <option value="fr">Français (Francês)</option>
+                    <option value="de">Deutsch (Alemão)</option>
+                    <option value="it">Italiano</option>
+                    <option value="ja">日本語 (Japonês)</option>
+                    <option value="ko">한국어 (Coreano)</option>
+                    <option value="zh">中文 (Chinês)</option>
+                    <option value="ru">Русский (Russo)</option>
+                    <option value="ar">العربية (Árabe)</option>
+                </select>
                 <button onclick="window.irParaEtapa3()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar para o Pagamento</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
             </div>
 
-            <!-- ETAPA 3: PAGAMENTO -->
             <div id="etapa3" style="display:none;">
                 <h3 style="color:#7a28cb; margin-top:0;">Pagamento</h3>
                 <p style="font-size:15px; font-weight:bold;">Chave PIX: <span style="color:#ff00ff;">fernandopcbung123@gmail.com</span></p>
@@ -316,7 +328,6 @@
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
             </div>
 
-            <!-- ETAPA 4: SUCESSO -->
             <div id="etapa4" style="display:none;">
                 <h3 style="color:#00cc66; margin-top:0;">Enviado com Sucesso!</h3>
                 <p style="font-size:15px;">A administração da <strong>Purple Studios</strong> vai avaliar seu pedido.</p>
@@ -325,14 +336,11 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODAL DE LOGIN DEV DOIS ESTÁGIOS -->
-    <!-- ========================================== -->
+    <!-- MODAL DE LOGIN DEV -->
     <div id="loginModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 1000;">
         <div style="background:white; padding:25px; border-radius:12px; color:black; text-align:center; max-width: 300px; width: 80%; border: 3px solid #ff00ff;">
             <h3 style="margin-top:0; color:#2a0052;">Login Administrador</h3>
             
-            <!-- ETAPA 1: GMAIL E SENHA -->
             <div id="devEtapaA">
                 <input type="email" id="emailInput" placeholder="E-mail Admin" style="padding:10px; margin-bottom:10px; width: 90%; border: 1px solid #ccc; border-radius: 5px;"><br>
                 <input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; margin-bottom:15px; width: 90%; border: 1px solid #ccc; border-radius: 5px;"><br>
@@ -340,16 +348,12 @@
                 <button onclick="window.fecharModal()" style="background:#ff4444; color:white; padding:10px 20px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-left:5px;">Sair</button>
             </div>
 
-            <!-- ETAPA 2: PASSCODES MASCARADOS -->
             <div id="devEtapaB" style="display:none;">
                 <div style="background:#f0e6ff; padding:8px; border-radius:6px; font-size:12px; color:#2a0052; margin-bottom:12px; font-weight:bold; border-left: 4px solid #7a28cb;">
                     💡 Dica do Estúdio: Insira as chaves numéricas secretas para liberar o console Dev Settings.
                 </div>
                 
-                <!-- Passcode de 6 dígitos -->
                 <input type="password" id="passcode6Digitos" maxlength="6" placeholder="Passcode (6 dígitos)" style="padding:10px; margin-bottom:10px; width: 90%; border: 1px solid #ccc; border-radius: 5px; text-align:center; font-size:16px; letter-spacing: 4px;"><br>
-                
-                <!-- Mini Passcode de 4 dígitos -->
                 <input type="password" id="passcode4Digitos" maxlength="4" placeholder="Mini Passcode (4 dígitos)" style="padding:10px; margin-bottom:15px; width: 90%; border: 1px solid #ccc; border-radius: 5px; text-align:center; font-size:16px; letter-spacing: 4px;"><br>
                 
                 <button onclick="window.validarAcessoDevCompleto()" style="background:#00cc66; color:white; padding:10px 20px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Entrar ✔️</button>
@@ -357,28 +361,20 @@
             </div>
         </div>
     </div>
-<!-- TELA DE LOGIN -->
-<div id="login-screen" style="display:none; text-align:center; padding: 50px;">
-    <h2>🔐 Login Administrador</h2>
-    <input type="email" id="login-email" placeholder="E-mail">
-    <input type="password" id="login-senha" placeholder="Senha">
-    <button onclick="window.loginAdmin()" class="btn-verde">Entrar</button>
-</div>
 
-<!-- O PAINEL (tudo que você já tem) -->
-<div id="painel-admin" style="display:none;">
-    <!-- TODO O SEU CÓDIGO DA DIV CLASS CONTAINER VAI AQUI DENTRO -->
-</div>
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" style="display:none; text-align:center; padding: 50px;">
+        <h2>🔐 Login Administrador</h2>
+        <input type="email" id="login-email" placeholder="E-mail">
+        <input type="password" id="login-senha" placeholder="Senha">
+        <button onclick="window.loginAdmin()" class="btn-verde">Entrar</button>
+    </div>
 
-    <!-- SCRIPT DE INTERAÇÃO DO SEU MODAL LOGO ABAIXO -->
     <script>
         window.avancarParaPasscode = function() {
             const email = document.getElementById('emailInput').value;
             const senha = document.getElementById('senhaInput').value;
-            if(!email || !senha) {
-                alert("Preencha o E-mail e a Senha primeiro!");
-                return;
-            }
+            if(!email || !senha) return alert("Preencha o E-mail e a Senha primeiro!");
             document.getElementById('devEtapaA').style.display = 'none';
             document.getElementById('devEtapaB').style.display = 'block';
         };
@@ -392,22 +388,18 @@
             const p6 = document.getElementById('passcode6Digitos').value;
             const p4 = document.getElementById('passcode4Digitos').value;
 
-            // Validação exata dos passcodes solicitados
             if(p6 !== "230914" || p4 !== "2763") {
                 alert("❌ Códigos de segurança incorretos! Acesso negado.");
                 return;
             }
 
-            // Se os passcodes estão certos, executa a verificação oficial de login do seu script.js
             if(typeof window.verificarLogin === 'function') {
                 window.verificarLogin();
             } else {
-                // Redirecionamento reserva caso queira testar localmente de forma direta
                 window.location.href = 'dev-settings.html';
             }
         };
 
-        // Redefine a ação do botão fechar para limpar as etapas
         window.fecharModal = function() {
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('devEtapaB').style.display = 'none';
@@ -417,7 +409,6 @@
         };
     </script>
 
-    <!-- IMPORTAÇÃO DO SEU SCRIPT COM FIREBASE -->
     <script type="module" src="script.js"></script>
 </body>
 </html>
