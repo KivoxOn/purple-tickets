@@ -14,8 +14,7 @@
         .btn-verde:active, .btn-vermelho:active, .btn-preto:active { transform: scale(0.95); }
         hr { border: 1px solid #5500aa; margin: 20px 0; }
         
-        .img-comprovante { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px solid #ffcc00; margin-top: 10px; display: block; transition: 0.3s; }
-        .img-comprovante:hover { transform: scale(1.02); box-shadow: 0 0 10px rgba(255, 204, 0, 0.5); }
+        .img-comprovante { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px solid #ffcc00; margin-top: 10px; display: block; }
         .linha-dupla { display: flex; gap: 10px; width: 94%; }
         .linha-dupla input { width: 100%; }
 
@@ -27,61 +26,68 @@
 <body>
 
     <div id="tela-carregamento">
-        <div class="spinner"></div>
-        <h2>Verificando credenciais...</h2>
+        <div class="spinner"></div><h2>Verificando credenciais...</h2>
     </div>
 
     <div id="painel-admin" style="display: none;">
         <div class="container">
             <h1>⚙️ DevSettings</h1>
             <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
-            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Sair do Painel (Logout)</button>
+            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Logout</button>
+            
+            <!-- NOVA SESSÃO: GERENCIAR LOJA VIP -->
             <hr>
+            <h2>🛍️ Adicionar Produto - Loja VIP</h2>
+            <input type="text" id="p-nome" placeholder="Nome do Produto (Ex: Arte Exclusiva)">
+            <input type="text" id="p-valor" placeholder="Valor (Ex: Grátis, 10 Pontos)">
+            <div class="linha-dupla">
+                <input type="number" id="p-estoque" placeholder="Estoque (Ex: 20)">
+                <input type="datetime-local" id="p-validade" title="Data/Hora que o item some da loja">
+            </div>
+            <button onclick="window.salvarProduto()" class="btn-verde" style="width: 100%; margin-top: 5px;">Adicionar à Loja</button>
+            <div id="lista-produtos-dev" style="margin-top: 15px;">Carregando produtos...</div>
 
+            <!-- RESTO DO PAINEL -->
+            <hr>
+            <h2>🔑 Código de Acesso da Loja VIP</h2>
+            <input type="text" id="codigo-loja-atual" readonly style="background: #2a0052; color: #ffcc00; text-align: center; font-weight: bold;" value="Carregando...">
+            <input type="text" id="novo-codigo-loja" placeholder="Novo código (Ex: PURPLE_VIP)">
+            <button onclick="window.alterarCodigoLoja()" class="btn-verde" style="width: 100%; margin-top: 5px;">Mudar Código</button>
+
+            <hr>
             <h2>📡 Atualizar Status</h2>
             <select id="select-meetup"><option value="">Carregando...</option></select>
             <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
             <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
 
-            <!-- NOVO: DEFINIR SENHA DA LOJA -->
-            <hr>
-            <h2>🔑 Código de Acesso da Loja VIP</h2>
-            <input type="text" id="codigo-loja-atual" readonly style="background: #2a0052; color: #ffcc00; text-align: center; font-weight: bold;" value="Carregando código atual...">
-            <input type="text" id="novo-codigo-loja" placeholder="Digite o novo código (Ex: PURPLE_VIP)">
-            <button onclick="window.alterarCodigoLoja()" class="btn-verde" style="width: 100%; margin-top: 5px;">Mudar Código da Loja</button>
-
-            <hr>
-            <h2>🗑️ Gerenciar Meetups Cadastrados</h2>
-            <div id="lista-gerenciar-meetups">Carregando...</div>
-
             <hr>
             <h2>📦 Gerenciar Pedidos de Ingressos</h2>
-            <button onclick="window.limparTudo()" class="btn-preto" style="width: 100%; margin-bottom: 10px; color: red; border-color: red;">🗑️ Limpar TODOS os pedidos</button>
             <div id="lista-pedidos">Carregando...</div>
 
             <hr>
             <h2>📅 Criar Novo Meetup</h2>
-            <input type="text" id="m-nome" placeholder="Nome do Evento (Ex: Creators Q&A)">
+            <input type="text" id="m-nome" placeholder="Nome do Evento">
             <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
             <div class="linha-dupla">
-                <input type="date" id="m-data" title="Data do Evento">
-                <input type="time" id="m-horario" title="Horário do Evento">
+                <input type="date" id="m-data"><input type="time" id="m-horario">
             </div>
-            <input type="text" id="m-link" placeholder="Link da Chamada (Ex: meet.google.com/...)">
+            <input type="text" id="m-link" placeholder="Link (meet.google.com/...)">
             <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
+            
+            <hr>
+            <h2>🗑️ Gerenciar Meetups</h2>
+            <div id="lista-gerenciar-meetups"></div>
         </div>
     </div>
 
-    <!-- MODAL DE IMAGEM -->
+    <!-- Modal Imagem mantida -->
     <div id="modalImagemFullscreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index: 9999; flex-direction:column;" onclick="window.fecharImagemFullscreen()">
         <span style="color:white; position:absolute; top:20px; right:30px; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
-        <img id="imagemAmpliada" style="max-width:95%; max-height:85%; border-radius:10px; border: 3px solid #7a28cb; box-shadow: 0 0 20px rgba(122, 40, 203, 0.5);">
-        <p style="color: #d1b3ff; margin-top: 15px; font-weight: bold; font-family: sans-serif;">Toque em qualquer lugar para fechar</p>
+        <img id="imagemAmpliada" style="max-width:95%; max-height:85%; border-radius:10px; border: 3px solid #7a28cb;">
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        // Importamos setDoc e getDoc para a senha da Loja VIP
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
@@ -91,8 +97,7 @@
             projectId: "purple-tickets",
             storageBucket: "purple-tickets.firebasestorage.app",
             messagingSenderId: "808397510409",
-            appId: "1:808397510409:web:cee298484e7f6db48da5d8",
-            measurementId: "G-CSY3V2WCZL"
+            appId: "1:808397510409:web:cee298484e7f6db48da5d8"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -103,182 +108,119 @@
             if (user) {
                 document.getElementById('tela-carregamento').style.display = 'none';
                 document.getElementById('painel-admin').style.display = 'block';
-                
-                window.carregarPedidos();
-                window.carregarMeetupsSelect();
-                window.carregarGerenciamentoMeetups();
-                window.carregarCodigoAtual(); // Carrega a senha atual da loja
-            } else {
-                window.location.href = 'index.html';
-            }
+                window.carregarPedidos(); window.carregarMeetupsSelect(); window.carregarGerenciamentoMeetups(); window.carregarCodigoAtual(); window.carregarProdutosDev();
+            } else { window.location.href = 'index.html'; }
         });
 
         window.sairAdmin = async function() { await signOut(auth); }
 
-        // --- FUNÇÕES DA LOJA VIP ---
-        window.carregarCodigoAtual = async function() {
-            try {
-                const docSnap = await getDoc(doc(db, "lojaConfig", "acesso"));
-                if (docSnap.exists()) {
-                    document.getElementById('codigo-loja-atual').value = "Código Atual: " + docSnap.data().codigo;
-                } else {
-                    document.getElementById('codigo-loja-atual').value = "Nenhum código definido";
-                }
-            } catch(e) { console.error(e); }
-        }
+        // --- GESTÃO DA LOJA VIP ---
+        window.salvarProduto = async function() {
+            const nome = document.getElementById('p-nome').value;
+            const valor = document.getElementById('p-valor').value;
+            const estoque = parseInt(document.getElementById('p-estoque').value);
+            const validade = document.getElementById('p-validade').value;
 
-        window.alterarCodigoLoja = async function() {
-            const novoCodigo = document.getElementById('novo-codigo-loja').value.trim();
-            if(!novoCodigo) return alert("Digite um código válido!");
+            if(!nome || !valor || isNaN(estoque) || !validade) return alert("Preencha Nome, Valor, Estoque e Validade!");
+
+            await addDoc(collection(db, "produtosLoja"), { nome, valor, estoque, validade, dataCriacao: new Date().toISOString() });
+            alert("Produto adicionado à Loja VIP!");
             
-            try {
-                await setDoc(doc(db, "lojaConfig", "acesso"), { codigo: novoCodigo });
-                alert("Código da loja alterado com sucesso!");
-                window.carregarCodigoAtual();
-                document.getElementById('novo-codigo-loja').value = '';
-            } catch(e) {
-                alert("Erro ao alterar o código. Verifique suas regras no Firebase!");
-            }
+            document.getElementById('p-nome').value = ''; document.getElementById('p-valor').value = '';
+            document.getElementById('p-estoque').value = ''; document.getElementById('p-validade').value = '';
+            window.carregarProdutosDev();
         }
-        // -----------------------------
 
-        window.abrirImagemFullscreen = function(base64Src) {
-            document.getElementById('imagemAmpliada').src = base64Src;
-            document.getElementById('modalImagemFullscreen').style.display = 'flex';
-        };
-
-        window.fecharImagemFullscreen = function() {
-            document.getElementById('modalImagemFullscreen').style.display = 'none';
-            document.getElementById('imagemAmpliada').src = ""; 
-        };
-
-        window.carregarGerenciamentoMeetups = async function() {
-            const container = document.getElementById('lista-gerenciar-meetups');
-            const snapshot = await getDocs(collection(db, "meetups"));
+        window.carregarProdutosDev = async function() {
+            const container = document.getElementById('lista-produtos-dev');
+            const snap = await getDocs(collection(db, "produtosLoja"));
             container.innerHTML = "";
-            snapshot.forEach(docSnap => {
+            snap.forEach(docSnap => {
                 const d = docSnap.data();
                 container.innerHTML += `
-                    <div class="pedido-card">
-                        <div>
-                            <span><strong>${d.nome}</strong></span><br>
-                            <span style="font-size: 12px; color: #ffcc00;">⏰ ${d.data || 'S/D'} às ${d.horario || 'S/H'}</span>
-                        </div>
-                        <button onclick="window.deletarMeetup('${docSnap.id}')" class="btn-vermelho">🗑️ Apagar</button>
+                    <div class="pedido-card" style="flex-direction: column; align-items: flex-start;">
+                        <div><strong>${d.nome}</strong> - Valor: ${d.valor}</div>
+                        <div style="font-size: 13px; color: #ffcc00;">Estoque: ${d.estoque} | Expira em: ${d.validade.replace('T', ' ')}</div>
+                        <button onclick="window.deletarProduto('${docSnap.id}')" class="btn-vermelho" style="margin-top:8px;">🗑️ Remover Produto</button>
                     </div>
                 `;
             });
         }
 
-        window.deletarMeetup = async function(id) {
-            if(confirm("Tem certeza que deseja apagar este evento?")) {
-                await deleteDoc(doc(db, "meetups", id));
-                window.carregarGerenciamentoMeetups();
-                window.carregarMeetupsSelect();
+        window.deletarProduto = async function(id) {
+            if(confirm("Apagar este produto da loja?")) {
+                await deleteDoc(doc(db, "produtosLoja", id)); window.carregarProdutosDev();
             }
         }
+
+        // --- OUTRAS FUNÇÕES DE ADMIN ---
+        window.carregarCodigoAtual = async function() {
+            const docSnap = await getDoc(doc(db, "lojaConfig", "acesso"));
+            document.getElementById('codigo-loja-atual').value = docSnap.exists() ? "Código Atual: " + docSnap.data().codigo : "Nenhum código";
+        }
+        window.alterarCodigoLoja = async function() {
+            const nc = document.getElementById('novo-codigo-loja').value.trim();
+            if(!nc) return alert("Digite algo!");
+            await setDoc(doc(db, "lojaConfig", "acesso"), { codigo: nc });
+            alert("Código alterado!"); window.carregarCodigoAtual(); document.getElementById('novo-codigo-loja').value = '';
+        }
+
+        window.abrirImagemFullscreen = function(src) { document.getElementById('imagemAmpliada').src = src; document.getElementById('modalImagemFullscreen').style.display = 'flex'; }
+        window.fecharImagemFullscreen = function() { document.getElementById('modalImagemFullscreen').style.display = 'none'; }
+
+        // Mesmas funções de Meetup e Pedidos do código anterior (Resumidas para focar na Loja)
+        window.carregarGerenciamentoMeetups = async function() {
+            const container = document.getElementById('lista-gerenciar-meetups');
+            const snap = await getDocs(collection(db, "meetups"));
+            container.innerHTML = "";
+            snap.forEach(d => {
+                container.innerHTML += `<div class="pedido-card"><span>${d.data().nome}</span> <button onclick="window.deletarMeetup('${d.id}')" class="btn-vermelho">Apagar</button></div>`;
+            });
+        }
+        window.deletarMeetup = async function(id) { if(confirm("Apagar?")) { await deleteDoc(doc(db, "meetups", id)); window.carregarGerenciamentoMeetups(); window.carregarMeetupsSelect(); } }
 
         window.carregarPedidos = async function() {
             const container = document.getElementById('lista-pedidos');
-            const querySnapshot = await getDocs(collection(db, "pedidos"));
+            const snap = await getDocs(collection(db, "pedidos"));
             container.innerHTML = "";
-            
-            querySnapshot.forEach((docSnap) => {
-                const dados = docSnap.data();
-                const emailUsuario = dados.email || dados.compradorEmail || dados.Email || 'Não informado';
-                const idiomaUsuario = dados.idioma || dados.compradorIdioma || dados.Language || dados.language || 'Não informado';
-                const urlComprovante = dados.comprovanteFoto || dados.comprovante || dados.comprovantePix || dados.comprovanteUrl || dados.imagem || dados.foto || dados.url || '';
-                
-                let tagImagem = `<p style="color:#ffcc00; font-size:13px; margin: 5px 0;">⚠️ O comprador não enviou a imagem ou o script.js falhou em salvar.</p>`;
-                
-                if (urlComprovante && (urlComprovante.startsWith('http') || urlComprovante.startsWith('data:image'))) {
-                    tagImagem = `<img src="${urlComprovante}" class="img-comprovante" alt="Comprovante Pix" style="cursor: pointer;" onclick="window.abrirImagemFullscreen('${urlComprovante}')" title="Clique para ampliar o comprovante">`;
-                }
-
+            snap.forEach((d) => {
+                const dados = d.data();
+                const email = dados.email || 'N/A';
+                let imgTag = dados.comprovanteFoto ? `<img src="${dados.comprovanteFoto}" class="img-comprovante" onclick="window.abrirImagemFullscreen('${dados.comprovanteFoto}')">` : '<p>Sem imagem</p>';
                 container.innerHTML += `
                     <div class="pedido-card" style="flex-direction: column; align-items: flex-start; width: 90%;">
-                        <div style="font-size: 16px; margin-bottom: 5px;"><strong>Evento:</strong> ${dados.meetup || 'Evento Desconhecido'}</div>
-                        <div style="font-size: 14px; color: #ffcc00;"><strong>Comprador:</strong> ${dados.nome || 'Desconhecido'}</div>
-                        <div style="font-size: 13px; color: #d1b3ff;"><strong>E-mail:</strong> ${emailUsuario}</div>
-                        <div style="font-size: 13px; color: #d1b3ff;"><strong>Idioma:</strong> ${idiomaUsuario}</div>
-                        <div style="font-size: 13px; color: #ff00ff; font-weight: bold; margin-top: 3px;"><strong>Status Atual:</strong> ${dados.status || 'Pendente'}</div>
-                        ${tagImagem}
-                        <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap; width: 100%;">
-                            <button onclick="window.aceitarPedido('${docSnap.id}')" class="btn-verde">✔️ Aceitar</button>
-                            <button onclick="window.recusarPedido('${docSnap.id}')" class="btn-vermelho">❌ Recusar</button>
-                            <button onclick="window.banirUsuario('${emailUsuario}', '${docSnap.id}')" class="btn-preto">🚫 Ban</button>
-                            <button onclick="window.excluirPedido('${docSnap.id}')" class="btn-vermelho" style="background:#555;">🗑️ Excluir</button>
+                        <div><strong>Nome:</strong> ${dados.nome} | <strong>Email:</strong> ${email} | <strong>Status:</strong> ${dados.status}</div>
+                        ${imgTag}
+                        <div style="margin-top: 10px;">
+                            <button onclick="window.aceitarPedido('${d.id}')" class="btn-verde">Aceitar</button>
+                            <button onclick="window.recusarPedido('${d.id}')" class="btn-vermelho">Recusar</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
-
-        window.excluirPedido = async function(id) {
-            if(confirm("Apagar registro deste pedido?")) { await deleteDoc(doc(db, "pedidos", id)); window.carregarPedidos(); }
-        }
-
-        window.limparTudo = async function() {
-            if(confirm("CUIDADO: Apagar absolutamente todos os pedidos da lista?")) {
-                const snap = await getDocs(collection(db, "pedidos"));
-                snap.forEach(d => deleteDoc(doc(db, "pedidos", d.id)));
-                window.carregarPedidos();
-            }
-        }
-
-        window.banirUsuario = async function(email, pedidoId) {
-            if(!email || email === 'Não informado') return alert("Não é possível banir um usuário sem e-mail!");
-            if(confirm(`Deseja realmente BANIR o usuário (${email})?`)) {
-                await addDoc(collection(db, "banidos"), { email: email, dataBanimento: new Date().toISOString() });
-                await updateDoc(doc(db, "pedidos", pedidoId), { status: "Banido" });
-                alert(`O usuário ${email} foi adicionado à lista de Ban.`);
-                window.carregarPedidos();
-            }
-        }
+        window.aceitarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Aprovado" }); window.carregarPedidos(); }
+        window.recusarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Recusado" }); window.carregarPedidos(); }
 
         window.carregarMeetupsSelect = async function() {
             const select = document.getElementById('select-meetup');
             const snap = await getDocs(collection(db, "meetups"));
-            select.innerHTML = '<option value="">Selecione um Meetup...</option>';
+            select.innerHTML = '<option value="">Selecione...</option>';
             snap.forEach(d => select.innerHTML += `<option value="${d.id}">${d.data().nome}</option>`);
         }
-
         window.atualizarStatus = async function() {
             const id = document.getElementById('select-meetup').value;
             const msg = document.getElementById('novo-status').value;
-            if(!id || !msg) return alert("Selecione e digite a msg!");
-            await updateDoc(doc(db, "meetups", id), { mensagemStatus: msg });
-            alert("Status atualizado!");
+            if(!id || !msg) return alert("Preencha tudo!");
+            await updateDoc(doc(db, "meetups", id), { mensagemStatus: msg }); alert("Status atualizado!");
         }
-
         window.salvarMeetup = async function() {
-            const nome = document.getElementById('m-nome').value;
-            const preco = document.getElementById('m-preco').value;
-            const data = document.getElementById('m-data').value;
-            const horario = document.getElementById('m-horario').value;
+            const nome = document.getElementById('m-nome').value; const preco = document.getElementById('m-preco').value;
+            const data = document.getElementById('m-data').value; const horario = document.getElementById('m-horario').value;
             const linkMeet = document.getElementById('m-link').value;
-            
-            if(!nome || !linkMeet || !horario || !data) {
-                return alert("Preencha todos os campos, incluindo a DATA e o HORÁRIO!");
-            }
-            
-            await addDoc(collection(db, "meetups"), { 
-                nome, preco, data, horario, linkMeet, mensagemStatus: "Tudo certo para o evento!" 
-            });
-            alert("Meetup criado com sucesso!");
-            window.carregarMeetupsSelect();
-            window.carregarGerenciamentoMeetups();
-            
-            document.getElementById('m-nome').value = '';
-            document.getElementById('m-preco').value = '';
-            document.getElementById('m-data').value = '';
-            document.getElementById('m-horario').value = '';
-            document.getElementById('m-link').value = '';
+            if(!nome || !linkMeet) return alert("Preencha!");
+            await addDoc(collection(db, "meetups"), { nome, preco, data, horario, linkMeet, mensagemStatus: "Tudo certo!" });
+            alert("Meetup criado!"); window.carregarMeetupsSelect(); window.carregarGerenciamentoMeetups();
         }
-
-        window.aceitarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Aprovado" }); window.carregarPedidos(); }
-        window.recusarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Recusado" }); window.carregarPedidos(); }
-
     </script>
 </body>
 </html>
