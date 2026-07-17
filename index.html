@@ -5,298 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purple Tickets - Purple Studios</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            text-align: center;
-        }
+        body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: #f8f9fa; text-align: center; }
 
-        /* BANNER SUPERIOR ROXO DO SEU DESENHO */
         .TOP-BAR {
-            background: #7a28cb;
-            padding: 15px;
-            border-radius: 0 0 20px 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            background: #7a28cb; padding: 15px; border-radius: 0 0 20px 20px;
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+            position: relative; z-index: 9999; pointer-events: auto; /* Garante que os botões funcionem */
         }
 
-        .btn-aba {
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .btn-aba { border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn-aba.active { background: #ffcc00; color: #2a0052; }
+        .btn-aba:not(.active) { background: #4a148c; color: #d1b3ff; }
 
-        .btn-aba.active {
-            background: #ffcc00;
-            color: #2a0052;
-        }
+        .titulo-container { margin: 25px auto; display: inline-block; }
+        .titulo-principal { background: #ff0000; color: #000000; font-size: 32px; font-weight: 900; padding: 5px 25px; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        .conteudo-container { max-width: 500px; margin: 0 auto; padding: 0 20px; }
+        .tab-content { display: none; }
+        .tab-content.ativa { display: block; }
+
+        .caixa-meetups { background: #7a28cb; color: #000000; font-weight: bold; padding: 40px 20px; border-radius: 20px; font-size: 18px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .caixa-status { background: #ffcc00; color: #2a0052; padding: 30px 20px; border-radius: 20px; min-height: 140px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .caixa-status h2 { font-size: 24px; margin: 0 0 15px 0; color: #2a0052; font-weight: bold; }
+        .caixa-status p { font-size: 16px; margin: 0; line-height: 1.4; }
+
+        .item-lista { background: white; color: black; border-radius: 10px; padding: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; text-align: left; }
         
-        .btn-aba:not(.active) {
-            background: #4a148c;
-            color: #d1b3ff;
-        }
-
-        /* TÍTULO COM FUNDO VERMELHO SÓLIDO */
-        .titulo-container {
-            margin: 25px auto;
-            display: inline-block;
-        }
-        
-        .titulo-principal {
-            background: #ff0000;
-            color: #000000;
-            font-size: 32px;
-            font-weight: 900;
-            padding: 5px 25px;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* CONTAINER PRINCIPAL DAS ABAS */
-        .conteudo-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.ativa {
-            display: block;
-        }
-
-        /* ABA MEETUPS: ROXO SÓLIDO POR DENTRO */
-        .caixa-meetups {
-            background: #7a28cb;
-            color: #000000;
-            font-weight: bold;
-            padding: 40px 20px;
-            border-radius: 20px;
-            font-size: 18px;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        /* ABA STATUS: AMARELO SÓLIDO POR DENTRO */
-        .caixa-status {
-            background: #ffcc00;
-            color: #2a0052;
-            padding: 30px 20px;
-            border-radius: 20px;
-            min-height: 140px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .caixa-status h2 {
-            font-size: 24px;
-            margin: 0 0 15px 0;
-            color: #2a0052;
-            font-weight: bold;
-        }
-
-        .caixa-status p {
-            font-size: 16px;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        /* ESTILO DO FILHO DINÂMICO (Item da Lista) */
-        .item-lista {
-            background: white;
-            color: black;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 10px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: left;
-        }
-
-        /* ESTILO DO BOTÃO DE COMPRAR */
-        .btn-comprar {
-            background: #00cc66; 
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
+        .btn-comprar { background: #00cc66; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .btn-comprar:hover { background: #00b359; }
         .btn-comprar:active { transform: scale(0.95); }
+        .btn-esgotado { background: #555; color: #aaa; cursor: not-allowed; box-shadow: none; }
 
-        /* BOTÃO DEV: QUADRADINHO ROSA COM BORDA PRETA */
-        .dev-box-btn {
-            background: #ff00ff;
-            color: #000000;
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 14px;
-            padding: 4px 10px;
-            border: 2.5px solid #000000;
-            display: inline-block;
-            margin-top: 60px;
-            cursor: pointer;
-            text-decoration: none;
-            user-select: none;
-        }
-        
+        .dev-box-btn { background: #ff00ff; color: #000000; font-family: monospace; font-weight: bold; font-size: 14px; padding: 4px 10px; border: 2.5px solid #000000; display: inline-block; margin-top: 60px; cursor: pointer; user-select: none; }
         .dev-box-btn:active { transform: scale(0.95); }
 
-        /* COPYRIGHT E REDES SOCIAIS */
-        .copyright-text {
-            font-size: 11px;
-            color: #888888;
-            margin-top: 10px;
-            margin-bottom: 30px;
-            font-family: sans-serif;
-            font-weight: bold;
-        }
-
-        .social-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px; /* Deixa os cantos levemente arredondados */
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .social-icon:hover {
-            transform: scale(1.1); /* Faz o ícone crescer um pouquinho ao passar o mouse/tocar */
-            box-shadow: 0 4px 8px rgba(122, 40, 203, 0.4); /* Sombra roxa no hover */
-        }
-        /* Adicione isso no final da tag <style> do seu index.html */
-* {
-    outline: 1px solid red !important;
-}
-
+        .copyright-text { font-size: 11px; color: #888888; margin-top: 10px; margin-bottom: 30px; font-family: sans-serif; font-weight: bold; }
+        .social-icon { width: 35px; height: 35px; border-radius: 8px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .social-icon:hover { transform: scale(1.1); box-shadow: 0 4px 8px rgba(122, 40, 203, 0.4); }
     </style>
 </head>
 <body>
 
-    <!-- NAV BAR SUPERIOR ROXA -->
     <div class="TOP-BAR">
         <button id="btn-meetups" class="btn-aba active" onclick="window.mudarAba('meetups')">🎟️ Meetups</button>
         <button id="btn-status" class="btn-aba" onclick="window.mudarAba('status')">📡 Status</button>
-        <!-- BOTÃO DA LOJA VIP -->
         <button id="btn-loja" class="btn-aba" onclick="window.abrirLojaVIP()" style="background: #111; color: #ff00ff; border: 2px solid #ff00ff;">🛒 Loja VIP</button>
     </div>
 
-    <!-- TÍTULO COM BANNER VERMELHO -->
     <div class="titulo-container">
         <h1 class="titulo-principal">Purple Tickets</h1>
     </div>
 
-    <!-- ÁREA DE CONTEÚDO DAS ABAS -->
     <div class="conteudo-container">
         
-        <!-- ABA MEETUPS -->
         <div id="aba-meetups" class="tab-content ativa">
             <div class="caixa-meetups">
-                <div id="lista-meetups" style="width: 100%;">
-                    <div class="item-lista">
-                        <div>
-                            <div style="font-size: 16px; font-weight: 900;">Purple Connect 2026: Creators Q&A</div>
-                            <div style="font-size: 14px; color: #555;">R$ 20,00</div>
-                        </div>
-                        <button class="btn-comprar" onclick="window.abrirCompra('Purple Connect 2026: Creators Q&A', '20,00', 'meet.google.com/exemplo')">Comprar</button>
-                    </div>
-                </div>
+                <div id="lista-meetups" style="width: 100%;">Carregando...</div>
             </div>
         </div>
 
-        <!-- ABA STATUS DA LIVE -->
         <div id="aba-status" class="tab-content">
             <div class="caixa-status">
                 <h2>Avisos em Tempo Real</h2>
-                <div id="lista-status">
-                    Acompanhe aqui se o evento vai atrasar ou se já está liberado!
-                </div>
+                <div id="lista-status">Acompanhe aqui...</div>
             </div>
         </div>
 
-        <!-- ABA LOJA VIP (Oculta por padrão) -->
+        <!-- ABA LOJA VIP -->
         <div id="aba-loja" class="tab-content">
             <div style="background: #111; padding: 30px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
                 <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🛒 LOJA SECRETA VIP</h2>
-                <p style="color: #d1b3ff; font-size: 15px;">Itens de edição limitada exclusivos para quem participou do Meetup!</p>
+                <p style="color: #d1b3ff; font-size: 15px;">Itens de edição limitada exclusivos para quem comprou ingressos e participou!</p>
                 
-                <div style="margin-top: 20px;">
-                    <!-- Exemplo de Produto VIP -->
-                    <div class="item-lista" style="background: #2a0052; color: white; border: 1px solid #7a28cb;">
-                        <div>
-                            <div style="font-size: 16px; font-weight: 900; color: #ffcc00;">👑 Cargo "VIP Meetup" no Discord</div>
-                            <div style="font-size: 14px; color: #aaa;">Exclusivo</div>
-                        </div>
-                        <button class="btn-comprar" style="background: #ff00ff;" onclick="alert('Em breve a função de resgatar itens será ativada!')">Resgatar</button>
-                    </div>
+                <div id="lista-produtos-loja" style="margin-top: 20px;">
+                    <!-- Produtos carregados via JS aparecerão aqui -->
+                    <p style="color: white;">Buscando itens no cofre...</p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- BOTÃO DEV -->
-    <div>
-        <div class="dev-box-btn" onclick="window.abrirDev()">Dev</div>
-    </div>
+    <div><div class="dev-box-btn" onclick="window.abrirDev()">Dev</div></div>
 
-    <!-- COPYRIGHT E REDES SOCIAIS -->
     <div class="copyright-text">
         © 2026 Purple Studios. Todos os direitos reservados.
-        
         <div style="margin-top: 15px; display: flex; justify-content: center; gap: 20px;">
-            <a href="https://youtube.com/@purplestudiosbfar" target="_blank" title="Visite nosso canal no YouTube">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJ3msgS3z2YJl6kqk8YOnt78I5cOZE1GenXDvDFrBBg&s=10" alt="YouTube Purple Studios" class="social-icon">
-            </a>
-            <a href="https://www.tiktok.com/@purplestudiosofficialtk?_r=1&_t=ZS-980pn0EUBg0" target="_blank" title="Siga-nos no TikTok">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg-JWMAX1apzfQmivmnEyvCijkgY0i-fbkVQPn8nDwrg&s=10" alt="TikTok Purple Studios" class="social-icon">
-            </a>
+            <a href="https://youtube.com/@purplestudiosbfar" target="_blank"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeJ3msgS3z2YJl6kqk8YOnt78I5cOZE1GenXDvDFrBBg&s=10" class="social-icon"></a>
+            <a href="https://www.tiktok.com/@purplestudiosofficialtk?_r=1&_t=ZS-980pn0EUBg0" target="_blank"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg-JWMAX1apzfQmivmnEyvCijkgY0i-fbkVQPn8nDwrg&s=10" class="social-icon"></a>
         </div>
     </div>
 
     <!-- MODAL DE COMPRA -->
     <div id="compraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 2000;">
         <div style="background:white; padding:20px; border-radius:15px; color:black; text-align:center; max-width: 350px; width: 90%; border: 3px solid #7a28cb;">
-            
+            <!-- ETAPAS DA COMPRA (Mantidas iguais) -->
             <div id="etapa0">
                 <h3 style="color:#7a28cb; margin-top:0;">Termos do Meetup</h3>
                 <div style="text-align: left; margin: 15px 0; font-size:15px; padding-left: 10px;">
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="checkbox" id="checkTermos"> Concordo com os <a href="termos.html" target="_blank" style="color: #9933ff; font-weight: bold; text-decoration: underline;">termos</a>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="checkbox" id="checkReembolso"> Ciente sobre o <a href="reembolso.html" target="_blank" style="color: #9933ff; font-weight: bold; text-decoration: underline;">reembolso</a>
-                    </label>
-                    <label style="display: block; margin-bottom: 10px;">
-                        <input type="checkbox" id="checkRegras"> Vou respeitar as <a href="regras.html" target="_blank" style="color: #9933ff; font-weight: bold; text-decoration: underline;">regras</a>
-                    </label>
+                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkTermos"> Concordo com os termos</label>
+                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkReembolso"> Ciente sobre o reembolso</label>
+                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkRegras"> Vou respeitar as regras</label>
                 </div>
                 <button onclick="window.irParaEtapa1()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
@@ -304,30 +113,20 @@
 
             <div id="etapa1" style="display:none;">
                 <h3 style="color:#7a28cb; margin-top:0;">Seus Dados</h3>
-                <input type="text" id="compradorNome" placeholder="Seu Nome/Nick" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px; outline:none;">
-                <input type="email" id="compradorEmail" placeholder="Seu E-mail (Gmail)" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px; outline:none;">
-                <select id="compradorIdioma" style="width:91%; padding:10px; margin-bottom:20px; border:2px solid #ccc; border-radius:5px; outline:none; background:white; font-size:14px; font-weight:bold;">
+                <input type="text" id="compradorNome" placeholder="Seu Nome/Nick" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px;">
+                <input type="email" id="compradorEmail" placeholder="Seu E-mail (Gmail)" style="width:85%; padding:10px; margin-bottom:12px; border:2px solid #ccc; border-radius:5px;">
+                <select id="compradorIdioma" style="width:91%; padding:10px; margin-bottom:20px; border:2px solid #ccc; border-radius:5px; font-weight:bold;">
                     <option value="" disabled selected>Selecione seu Idioma</option>
                     <option value="pt-BR">Português (Brasil)</option>
                     <option value="en">English (Inglês)</option>
-                    <option value="es">Español (Espanhol)</option>
-                    <option value="fr">Français (Francês)</option>
-                    <option value="de">Deutsch (Alemão)</option>
-                    <option value="it">Italiano</option>
-                    <option value="ja">日本語 (Japonês)</option>
-                    <option value="ko">한국어 (Coreano)</option>
-                    <option value="zh">中文 (Chinês)</option>
-                    <option value="ru">Русский (Russo)</option>
-                    <option value="ar">العربية (Árabe)</option>
                 </select>
-                <button onclick="window.irParaEtapa3()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar para o Pagamento</button>
+                <button onclick="window.irParaEtapa3()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
             </div>
 
             <div id="etapa3" style="display:none;">
                 <h3 style="color:#7a28cb; margin-top:0;">Pagamento</h3>
                 <p style="font-size:15px; font-weight:bold;">Chave PIX: <span style="color:#ff00ff;">fernandopcbung123@gmail.com</span></p>
-                <p style="font-size:13px; color:#555;">Anexe o print do comprovante abaixo:</p>
                 <input type="file" id="comprovantePix" accept="image/*" style="margin-bottom:20px; width:100%;">
                 <button onclick="window.finalizarCompra()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Enviar Comprovante</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
@@ -335,7 +134,7 @@
 
             <div id="etapa4" style="display:none;">
                 <h3 style="color:#00cc66; margin-top:0;">Enviado com Sucesso!</h3>
-                <p style="font-size:15px;">A administração da <strong>Purple Studios</strong> vai avaliar seu pedido.</p>
+                <p style="font-size:15px;">A administração avaliará seu pedido.</p>
                 <button onclick="window.fecharCompraEAtualizar()" style="background:#7a28cb; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-top:10px;">Fechar</button>
             </div>
         </div>
@@ -345,75 +144,37 @@
     <div id="loginModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 1000;">
         <div style="background:white; padding:25px; border-radius:12px; color:black; text-align:center; max-width: 300px; width: 80%; border: 3px solid #ff00ff;">
             <h3 style="margin-top:0; color:#2a0052;">Login Administrador</h3>
-            
             <div id="devEtapaA">
                 <input type="email" id="emailInput" placeholder="E-mail Admin" style="padding:10px; margin-bottom:10px; width: 90%; border: 1px solid #ccc; border-radius: 5px;"><br>
                 <input type="password" id="senhaInput" placeholder="Senha" style="padding:10px; margin-bottom:15px; width: 90%; border: 1px solid #ccc; border-radius: 5px;"><br>
                 <button onclick="window.avancarParaPasscode()" style="background:#7a28cb; color:white; padding:10px 20px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Avançar ➡️</button>
                 <button onclick="window.fecharModal()" style="background:#ff4444; color:white; padding:10px 20px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-left:5px;">Sair</button>
             </div>
-
             <div id="devEtapaB" style="display:none;">
-                <div style="background:#f0e6ff; padding:8px; border-radius:6px; font-size:12px; color:#2a0052; margin-bottom:12px; font-weight:bold; border-left: 4px solid #7a28cb;">
-                    💡 Dica do Estúdio: Insira as chaves numéricas secretas para liberar o console Dev Settings.
-                </div>
-                
-                <input type="password" id="passcode6Digitos" maxlength="6" placeholder="Passcode (6 dígitos)" style="padding:10px; margin-bottom:10px; width: 90%; border: 1px solid #ccc; border-radius: 5px; text-align:center; font-size:16px; letter-spacing: 4px;"><br>
-                <input type="password" id="passcode4Digitos" maxlength="4" placeholder="Mini Passcode (4 dígitos)" style="padding:10px; margin-bottom:15px; width: 90%; border: 1px solid #ccc; border-radius: 5px; text-align:center; font-size:16px; letter-spacing: 4px;"><br>
-                
+                <input type="password" id="passcode6Digitos" maxlength="6" placeholder="Passcode (6)" style="padding:10px; margin-bottom:10px; width: 90%; text-align:center;"><br>
+                <input type="password" id="passcode4Digitos" maxlength="4" placeholder="Passcode (4)" style="padding:10px; margin-bottom:15px; width: 90%; text-align:center;"><br>
                 <button onclick="window.validarAcessoDevCompleto()" style="background:#00cc66; color:white; padding:10px 20px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Entrar ✔️</button>
-                <button onclick="window.voltarParaEtapaInputs()" style="background:#888; color:white; padding:10px 15px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-left:5px;">Voltar</button>
             </div>
         </div>
     </div>
 
-    <!-- TELA DE LOGIN -->
-    <div id="login-screen" style="display:none; text-align:center; padding: 50px;">
-        <h2>🔐 Login Administrador</h2>
-        <input type="email" id="login-email" placeholder="E-mail">
-        <input type="password" id="login-senha" placeholder="Senha">
-        <button onclick="window.loginAdmin()" class="btn-verde">Entrar</button>
-    </div>
-
     <script>
         window.avancarParaPasscode = function() {
-            const email = document.getElementById('emailInput').value;
-            const senha = document.getElementById('senhaInput').value;
-            if(!email || !senha) return alert("Preencha o E-mail e a Senha primeiro!");
-            document.getElementById('devEtapaA').style.display = 'none';
-            document.getElementById('devEtapaB').style.display = 'block';
+            if(!document.getElementById('emailInput').value || !document.getElementById('senhaInput').value) return alert("Preencha tudo!");
+            document.getElementById('devEtapaA').style.display = 'none'; document.getElementById('devEtapaB').style.display = 'block';
         };
-
-        window.voltarParaEtapaInputs = function() {
-            document.getElementById('devEtapaB').style.display = 'none';
-            document.getElementById('devEtapaA').style.display = 'block';
-        };
-
         window.validarAcessoDevCompleto = function() {
-            const p6 = document.getElementById('passcode6Digitos').value;
-            const p4 = document.getElementById('passcode4Digitos').value;
-
-            if(p6 !== "230914" || p4 !== "2763") {
-                alert("❌ Códigos de segurança incorretos! Acesso negado.");
-                return;
+            if(document.getElementById('passcode6Digitos').value !== "230914" || document.getElementById('passcode4Digitos').value !== "2763") {
+                return alert("❌ Códigos incorretos!");
             }
-
-            if(typeof window.verificarLogin === 'function') {
-                window.verificarLogin();
-            } else {
-                window.location.href = 'dev-settings.html';
-            }
+            window.verificarLogin();
         };
-
         window.fecharModal = function() {
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('devEtapaB').style.display = 'none';
             document.getElementById('devEtapaA').style.display = 'block';
-            document.getElementById('passcode6Digitos').value = "";
-            document.getElementById('passcode4Digitos').value = "";
         };
     </script>
-
     <script type="module" src="script.js"></script>
 </body>
 </html>
