@@ -10,7 +10,7 @@
         .TOP-BAR {
             background: #7a28cb; padding: 15px; border-radius: 0 0 20px 20px;
             display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
-            position: relative; z-index: 9999; pointer-events: auto; /* Garante que os botões funcionem */
+            position: relative; z-index: 9999; pointer-events: auto;
         }
 
         .btn-aba { border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
@@ -71,14 +71,11 @@
             </div>
         </div>
 
-        <!-- ABA LOJA VIP -->
         <div id="aba-loja" class="tab-content">
             <div style="background: #111; padding: 30px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
                 <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🛒 LOJA SECRETA VIP</h2>
                 <p style="color: #d1b3ff; font-size: 15px;">Itens de edição limitada exclusivos para quem comprou ingressos e participou!</p>
-                
                 <div id="lista-produtos-loja" style="margin-top: 20px;">
-                    <!-- Produtos carregados via JS aparecerão aqui -->
                     <p style="color: white;">Buscando itens no cofre...</p>
                 </div>
             </div>
@@ -99,13 +96,30 @@
     <!-- MODAL DE COMPRA -->
     <div id="compraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 2000;">
         <div style="background:white; padding:20px; border-radius:15px; color:black; text-align:center; max-width: 350px; width: 90%; border: 3px solid #7a28cb;">
-            <!-- ETAPAS DA COMPRA (Mantidas iguais) -->
+            
+            <!-- ETAPA 0 COM OS LINKS CORRIGIDOS E SEPARADOS -->
             <div id="etapa0">
                 <h3 style="color:#7a28cb; margin-top:0;">Termos do Meetup</h3>
                 <div style="text-align: left; margin: 15px 0; font-size:15px; padding-left: 10px;">
-                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkTermos"> Concordo com os termos</label>
-                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkReembolso"> Ciente sobre o reembolso</label>
-                    <label style="display: block; margin-bottom: 10px;"><input type="checkbox" id="checkRegras"> Vou respeitar as regras</label>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" id="checkTermos" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
+                        <label for="checkTermos" style="cursor: pointer; margin: 0; color: black;">Eu concordo com os </label>
+                        <a href="termos.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Termos</a>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" id="checkReembolso" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
+                        <label for="checkReembolso" style="cursor: pointer; margin: 0; color: black;">Estou ciente do </label>
+                        <a href="reembolso.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Reembolso</a>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" id="checkRegras" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
+                        <label for="checkRegras" style="cursor: pointer; margin: 0; color: black;">Vou respeitar as </label>
+                        <a href="regras.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Regras</a>
+                    </div>
+
                 </div>
                 <button onclick="window.irParaEtapa1()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
