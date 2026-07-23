@@ -15,8 +15,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Variáveis para sabermos o que a pessoa está comprando
-let tipoCompra = ""; // Vai ser 'meetup' ou 'loja'
+// Variáveis de controle de compra
+let tipoCompra = ""; // 'meetup' ou 'loja'
 let meetupSelecionadoId = null;
 let produtoSelecionadoId = null;
 let produtoSelecionadoNome = null;
@@ -28,29 +28,37 @@ window.mudarAba = function(aba) {
     document.querySelectorAll('.btn-aba').forEach(el => el.classList.remove('active'));
 
     if (aba === 'meetups') {
-        document.getElementById('aba-meetups').classList.add('ativa');
-        document.getElementById('btn-meetups').classList.add('active');
+        const elAba = document.getElementById('aba-meetups');
+        const elBtn = document.getElementById('btn-meetups');
+        if (elAba) elAba.classList.add('ativa');
+        if (elBtn) elBtn.classList.add('active');
     } else if (aba === 'status') {
-        document.getElementById('aba-status').classList.add('ativa');
-        document.getElementById('btn-status').classList.add('active');
+        const elAba = document.getElementById('aba-status');
+        const elBtn = document.getElementById('btn-status');
+        if (elAba) elAba.classList.add('ativa');
+        if (elBtn) elBtn.classList.add('active');
     } else if (aba === 'loja') {
-        document.getElementById('aba-loja').classList.add('ativa');
-        document.getElementById('btn-loja').classList.add('active');
+        const elAba = document.getElementById('aba-loja');
+        const elBtn = document.getElementById('btn-loja');
+        if (elAba) elAba.classList.add('ativa');
+        if (elBtn) elBtn.classList.add('active');
     }
 };
 
-// --- LOJA VIP ---
+// --- CARREGAR LOJA VIP ---
 window.abrirLojaVIP = async function() {
     window.mudarAba('loja');
     const container = document.getElementById('lista-produtos-loja');
-    container.innerHTML = "<p style='color: white;'>Carregando itens da loja...</p>";
+    if (!container) return;
+    
+    container.innerHTML = "<p style='color: white;'>Carregando itens exclusivos...</p>";
 
     try {
         const snap = await getDocs(collection(db, "produtosLoja"));
         container.innerHTML = "";
 
         if (snap.empty) {
-            container.innerHTML = "<p style='color: #d1b3ff;'>Nenhum item disponível no momento.</p>";
+            container.innerHTML = "<p style='color: #d1b3ff;'>Nenhum item VIP disponível no momento.</p>";
             return;
         }
 
@@ -63,16 +71,15 @@ window.abrirLojaVIP = async function() {
 
             if (!expirado) {
                 const esgotado = item.estoque <= 0;
-                // Agora o botão chama a nova função que abre as 4 etapas!
                 const btnHtml = esgotado 
                     ? `<button class="btn-comprar btn-esgotado" disabled>ESGOTADO</button>` 
-                    : `<button class="btn-comprar" onclick="window.abrirModalCompraLoja('${docSnap.id}', '${item.nome}', ${item.estoque})">Comprar (PIX)</button>`;
+                    : `<button class="btn-comprar" onclick="window.pedirCodigoLoja('${docSnap.id}', '${item.nome}', ${item.estoque})">Comprar Item</button>`;
 
                 container.innerHTML += `
                     <div class="item-lista">
                         <div>
                             <strong>${item.nome}</strong><br>
-                            <small style="color: #666;">Valor: ${item.valor} | Estoque: ${item.estoque}</small>
+                            <small style="color: #ccc;">Valor: ${item.valor} | Estoque: ${item.estoque}</small>
                         </div>
                         ${btnHtml}
                     </div>
@@ -82,6 +89,51 @@ window.abrirLojaVIP = async function() {
     } catch (error) {
         console.error("Erro ao carregar Loja VIP:", error);
         container.innerHTML = "<p style='color: #ff4444;'>Erro ao carregar produtos.</p>";
+    }
+};
+
+// --- VERIFICAÇÃO DE CÓDIGO DA LOJA VIP ---
+window.pedirCodigoLoja = async function(id, nome, estoque) {
+    if (estoque <= 0) {
+        return alert("❌ Ops! Este item já está esgotado.");
+    }
+
+    const codigoDigitado = prompt(`🔒 Item: ${nome}\n\nDigite o código de acesso da Loja VIP para continuar:`);
+    if (!codigoDigitado) return; // Se cancelar, não faz nada
+
+    try {
+        // Valida o código no Firebase na coleção lojaConfig
+        const configSnap = await getDocs(collection(db, "lojaConfig"));
+        let codigoValido = false;
+
+        configSnap.forEach(d => {
+            const dados = d.data();
+            // Verifica nos campos comuns onde o código costuma ficar salvo
+            if ((dados.codigo && dados.codigo.trim() === codigoDigitado.trim()) ||
+                (dados.senha && dados.senha.trim() === codigoDigitado.trim()) ||
+                (dados.texto && dados.texto.trim() === codigoDigitado.trim())) {
+                codigoValido = true;
+            }
+        });
+
+        if (configSnap.empty) {
+            return alert("⚠️ Nenhuma configuração de código encontrada no banco de dados.");
+        }
+
+        if (!codigoValido) {
+            return alert("❌ Código de acesso incorreto!");
+        }
+
+        // Se o código estiver correto, abre as 4 etapas de compra!
+        tipoCompra = 'loja';
+        produtoSelecionadoId = id;
+        produtoSelecionadoNome = nome;
+        produtoEstoqueAtual = estoque;
+        iniciarModal();
+
+    } catch (err) {
+        console.error("Erro ao validar código:", err);
+        alert("❌ Erro ao validar o código no servidor.");
     }
 };
 
@@ -109,7 +161,7 @@ async function carregarMeetups() {
                     <div class="item-lista">
                         <div>
                             <strong>${m.nome}</strong><br>
-                            <small style="color: #555;">📅 ${m.data || 'A definir'} às ${m.horario || '--:--'} | R$ ${m.preco || '0'}</small>
+                            <small style="color: #ccc;">📅 ${m.data || 'A definir'} às ${m.horario || '--:--'} | R$ ${m.preco || '0'}</small>
                         </div>
                         <button class="btn-comprar" onclick="window.abrirModalCompraMeetup('${docSnap.id}')">Garantir Ticket</button>
                     </div>
@@ -131,89 +183,99 @@ async function carregarMeetups() {
 }
 
 // ==========================================
-// JANELA DE 4 ETAPAS (SERVE PARA MEETUPS E LOJA)
+// JANELA DE 4 ETAPAS BLINDADA
 // ==========================================
 
-// Prepara a janela para comprar um TICKET DE EVENTO
 window.abrirModalCompraMeetup = function(id) {
     tipoCompra = 'meetup';
     meetupSelecionadoId = id;
     iniciarModal();
 };
 
-// Prepara a janela para comprar um PRODUTO DA LOJA
-window.abrirModalCompraLoja = function(id, nome, estoque) {
-    if (estoque <= 0) {
-        return alert("❌ Ops! Este item já está esgotado.");
-    }
-    tipoCompra = 'loja';
-    produtoSelecionadoId = id;
-    produtoSelecionadoNome = nome;
-    produtoEstoqueAtual = estoque;
-    iniciarModal();
-};
-
-// Abre a janela do zero (Etapa 0)
 function iniciarModal() {
-    document.getElementById('compraModal').style.display = 'flex';
-    document.getElementById('etapa0').style.display = 'block';
-    document.getElementById('etapa1').style.display = 'none';
-    document.getElementById('etapa3').style.display = 'none';
-    document.getElementById('etapa4').style.display = 'none';
+    const modal = document.getElementById('compraModal');
+    if (modal) modal.style.display = 'flex';
 
-    document.getElementById('checkTermos').checked = false;
-    document.getElementById('checkReembolso').checked = false;
-    document.getElementById('checkRegras').checked = false;
+    const et0 = document.getElementById('etapa0');
+    const et1 = document.getElementById('etapa1');
+    const et3 = document.getElementById('etapa3');
+    const et4 = document.getElementById('etapa4');
+
+    if (et0) et0.style.display = 'block';
+    if (et1) et1.style.display = 'none';
+    if (et3) et3.style.display = 'none';
+    if (et4) et4.style.display = 'none';
+
+    const c1 = document.getElementById('checkTermos');
+    const c2 = document.getElementById('checkReembolso');
+    const c3 = document.getElementById('checkRegras');
+    if (c1) c1.checked = false;
+    if (c2) c2.checked = false;
+    if (c3) c3.checked = false;
 }
 
 window.irParaEtapa1 = function() {
-    const cTermos = document.getElementById('checkTermos').checked;
-    const cReembolso = document.getElementById('checkReembolso').checked;
-    const cRegras = document.getElementById('checkRegras').checked;
+    const cTermos = document.getElementById('checkTermos');
+    const cReembolso = document.getElementById('checkReembolso');
+    const cRegras = document.getElementById('checkRegras');
 
-    if (!cTermos || !cReembolso || !cRegras) {
+    if ((cTermos && !cTermos.checked) || (cReembolso && !cReembolso.checked) || (cRegras && !cRegras.checked)) {
         return alert("⚠️ Você precisa aceitar os Termos, o Reembolso e as Regras para continuar!");
     }
 
-    document.getElementById('etapa0').style.display = 'none';
-    document.getElementById('etapa1').style.display = 'block';
+    const et0 = document.getElementById('etapa0');
+    const et1 = document.getElementById('etapa1');
+    if (et0) et0.style.display = 'none';
+    if (et1) et1.style.display = 'block';
 };
 
 window.irParaEtapa3 = function() {
-    const nome = document.getElementById('compradorNome').value.trim();
-    const email = document.getElementById('compradorEmail').value.trim();
-    const idioma = document.getElementById('compradorIdioma').value;
+    const nomeEl = document.getElementById('compradorNome');
+    const emailEl = document.getElementById('compradorEmail');
+    const idiomaEl = document.getElementById('compradorIdioma');
+
+    const nome = nomeEl ? nomeEl.value.trim() : "";
+    const email = emailEl ? emailEl.value.trim() : "";
+    const idioma = idiomaEl ? idiomaEl.value : "";
 
     if (!nome || !email || !idioma) {
         return alert("⚠️ Por favor, preencha todos os dados!");
     }
 
-    document.getElementById('etapa1').style.display = 'none';
-    document.getElementById('etapa3').style.display = 'block';
+    const et1 = document.getElementById('etapa1');
+    const et3 = document.getElementById('etapa3');
+    if (et1) et1.style.display = 'none';
+    if (et3) et3.style.display = 'block';
 };
 
-// Finaliza a compra enviando a foto do PIX
 window.finalizarCompra = async function() {
     const fileInput = document.getElementById('comprovantePix');
-    const file = fileInput.files[0];
-
-    if (!file) {
+    if (!fileInput || !fileInput.files[0]) {
         return alert("⚠️ Por favor, adicione a imagem do comprovante PIX!");
     }
 
-    const nome = document.getElementById('compradorNome').value.trim();
-    const email = document.getElementById('compradorEmail').value.trim().toLowerCase();
-    const idioma = document.getElementById('compradorIdioma').value;
+    const file = fileInput.files[0];
+    const nomeEl = document.getElementById('compradorNome');
+    const emailEl = document.getElementById('compradorEmail');
+    const idiomaEl = document.getElementById('compradorIdioma');
 
-    // Verifica se o e-mail está banido
-    const banidosSnap = await getDocs(collection(db, "banidos"));
-    let banido = false;
-    banidosSnap.forEach(d => {
-        if (d.data().email === email) banido = true;
-    });
+    const nome = nomeEl ? nomeEl.value.trim() : "";
+    const email = emailEl ? emailEl.value.trim().toLowerCase() : "";
+    const idioma = idiomaEl ? idiomaEl.value : "Português";
 
-    if (banido) {
-        return alert("🚫 Seu e-mail está banido do sistema da Purple Studios e você não pode fazer compras.");
+    // Checa se está banido
+    try {
+        const banidosSnap = await getDocs(collection(db, "banidos"));
+        let banido = false;
+        banidosSnap.forEach(d => {
+            if (d.data().email === email) banido = true;
+        });
+
+        if (banido) {
+            return alert("🚫 Seu e-mail está banido do sistema da Purple Studios.");
+        }
+    } catch (e) {
+        console.error("Erro ao verificar banidos:", e);
     }
 
     const reader = new FileReader();
@@ -221,7 +283,6 @@ window.finalizarCompra = async function() {
         const fotoBase64 = e.target.result;
 
         try {
-            // Se for compra de TICKET DE MEETUP
             if (tipoCompra === 'meetup') {
                 await addDoc(collection(db, "pedidos"), {
                     meetupId: meetupSelecionadoId,
@@ -232,16 +293,14 @@ window.finalizarCompra = async function() {
                     status: "Aguardando Aprovação",
                     dataPedido: new Date().toISOString()
                 });
-            } 
-            // Se for compra de PRODUTO DA LOJA VIP
-            else if (tipoCompra === 'loja') {
-                // Diminui 1 do estoque
+            } else if (tipoCompra === 'loja') {
+                // Diminui o estoque do produto
                 const produtoRef = doc(db, "produtosLoja", produtoSelecionadoId);
                 await updateDoc(produtoRef, {
                     estoque: produtoEstoqueAtual - 1
                 });
 
-                // Salva o pedido na aba da loja
+                // Salva o pedido na aba de pedidos da loja
                 await addDoc(collection(db, "pedidosLojaVip"), {
                     produtoId: produtoSelecionadoId,
                     produtoNome: produtoSelecionadoNome,
@@ -254,10 +313,11 @@ window.finalizarCompra = async function() {
                 });
             }
 
-            // Vai para a tela de Sucesso!
-            document.getElementById('etapa3').style.display = 'none';
-            document.getElementById('etapa4').style.display = 'block';
-            
+            const et3 = document.getElementById('etapa3');
+            const et4 = document.getElementById('etapa4');
+            if (et3) et3.style.display = 'none';
+            if (et4) et4.style.display = 'block';
+
         } catch (err) {
             console.error("Erro ao enviar pedido:", err);
             alert("❌ Erro ao enviar comprovante. Tente novamente.");
@@ -267,7 +327,8 @@ window.finalizarCompra = async function() {
 };
 
 window.fecharCompra = function() {
-    document.getElementById('compraModal').style.display = 'none';
+    const modal = document.getElementById('compraModal');
+    if (modal) modal.style.display = 'none';
 };
 
 window.fecharCompraEAtualizar = function() {
@@ -277,12 +338,18 @@ window.fecharCompraEAtualizar = function() {
 
 // --- PAINEL DEV & LOGIN ---
 window.abrirDev = function() {
-    document.getElementById('loginModal').style.display = 'flex';
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) loginModal.style.display = 'flex';
 };
 
 window.verificarLogin = async function() {
-    const email = document.getElementById('emailInput').value;
-    const senha = document.getElementById('senhaInput').value;
+    const emailEl = document.getElementById('emailInput');
+    const senhaEl = document.getElementById('senhaInput');
+    
+    if (!emailEl || !senhaEl) return;
+    
+    const email = emailEl.value;
+    const senha = senhaEl.value;
 
     try {
         await signInWithEmailAndPassword(auth, email, senha);
@@ -292,7 +359,7 @@ window.verificarLogin = async function() {
     }
 };
 
-// Inicializa a página
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     carregarMeetups();
 });
