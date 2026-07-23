@@ -14,13 +14,18 @@
         .btn-verde:active, .btn-vermelho:active, .btn-preto:active { transform: scale(0.95); }
         hr { border: 1px solid #5500aa; margin: 20px 0; }
         
-        .img-comprovante { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px solid #ffcc00; margin-top: 10px; display: block; }
+        .img-comprovante { max-width: 100%; max-height: 250px; border-radius: 8px; border: 2px solid #ffcc00; margin-top: 10px; display: block; cursor: pointer;}
         .linha-dupla { display: flex; gap: 10px; width: 94%; }
         .linha-dupla input { width: 100%; }
 
         #tela-carregamento { text-align: center; margin-top: 50px; }
         .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #ffcc00; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilos do Menu de Abas */
+        .btn-dev-aba { transition: 0.2s; font-size: 14px; }
+        .btn-dev-aba:hover { filter: brightness(1.2); }
+        .btn-dev-aba:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -32,51 +37,83 @@
     <div id="painel-admin" style="display: none;">
         <div class="container">
             <h1>⚙️ DevSettings</h1>
-            <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer;">Voltar ao Site</button>
-            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-top: 5px;">Logout</button>
+            <button onclick="window.location.href='index.html'" style="padding: 10px; width: 100%; font-weight: bold; cursor:pointer; margin-bottom: 5px;">Voltar ao Site</button>
+            <button onclick="window.sairAdmin()" class="btn-vermelho" style="width: 100%; margin-bottom: 20px;">Logout</button>
             
-            <!-- NOVA SESSÃO: GERENCIAR LOJA VIP -->
-            <hr>
-            <h2>🛍️ Adicionar Produto - Loja VIP</h2>
-            <input type="text" id="p-nome" placeholder="Nome do Produto (Ex: Arte Exclusiva)">
-            <input type="text" id="p-valor" placeholder="Valor (Ex: Grátis, 10 Pontos)">
-            <div class="linha-dupla">
-                <input type="number" id="p-estoque" placeholder="Estoque (Ex: 20)">
-                <input type="datetime-local" id="p-validade" title="Data/Hora que o item some da loja">
+            <!-- MENU DE ABAS DO DEV -->
+            <div class="dev-menu" style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn-dev-aba" onclick="window.abrirAbaDev('abaPedidos')" style="background: #6a0dad; color: white; border: 2px solid #ff00ff; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">📦 Pedidos</button>
+                <button class="btn-dev-aba" onclick="window.abrirAbaDev('abaLixeira')" style="background: #333; color: white; border: 2px solid #ff00ff; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">🗑️ Lixeira</button>
+                <button class="btn-dev-aba" onclick="window.abrirAbaDev('abaBanidos')" style="background: #8b0000; color: white; border: 2px solid #ff00ff; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">🚫 Banidos</button>
+                <button class="btn-dev-aba" onclick="window.abrirAbaDev('abaLojaDev')" style="background: #ff00ff; color: white; border: 2px solid #6a0dad; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">🛒 Loja VIP</button>
+                <button class="btn-dev-aba" onclick="window.abrirAbaDev('abaGeral')" style="background: #00cc66; color: white; border: 2px solid #2a0052; padding: 10px; cursor: pointer; border-radius: 5px; font-weight: bold;">⚙️ Geral</button>
             </div>
-            <button onclick="window.salvarProduto()" class="btn-verde" style="width: 100%; margin-top: 5px;">Adicionar à Loja</button>
-            <div id="lista-produtos-dev" style="margin-top: 15px;">Carregando produtos...</div>
 
-            <!-- RESTO DO PAINEL -->
-            <hr>
-            <h2>🔑 Código de Acesso da Loja VIP</h2>
-            <input type="text" id="codigo-loja-atual" readonly style="background: #2a0052; color: #ffcc00; text-align: center; font-weight: bold;" value="Carregando...">
-            <input type="text" id="novo-codigo-loja" placeholder="Novo código (Ex: PURPLE_VIP)">
-            <button onclick="window.alterarCodigoLoja()" class="btn-verde" style="width: 100%; margin-top: 5px;">Mudar Código</button>
+            <!-- ================= ABAS ================= -->
 
-            <hr>
-            <h2>📡 Atualizar Status</h2>
-            <select id="select-meetup"><option value="">Carregando...</option></select>
-            <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
-            <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
-
-            <hr>
-            <h2>📦 Gerenciar Pedidos de Ingressos</h2>
-            <div id="lista-pedidos">Carregando...</div>
-
-            <hr>
-            <h2>📅 Criar Novo Meetup</h2>
-            <input type="text" id="m-nome" placeholder="Nome do Evento">
-            <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
-            <div class="linha-dupla">
-                <input type="date" id="m-data"><input type="time" id="m-horario">
+            <!-- ABA 1: PEDIDOS PENDENTES -->
+            <div id="abaPedidos" class="conteudo-aba-dev">
+                <h2>📦 Pedidos Ativos</h2>
+                <div id="lista-pedidos">Carregando...</div>
             </div>
-            <input type="text" id="m-link" placeholder="Link (meet.google.com/...)">
-            <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
-            
-            <hr>
-            <h2>🗑️ Gerenciar Meetups</h2>
-            <div id="lista-gerenciar-meetups"></div>
+
+            <!-- ABA 2: LIXEIRA -->
+            <div id="abaLixeira" class="conteudo-aba-dev" style="display: none;">
+                <h2>🗑️ Lixeira (Pedidos Recusados)</h2>
+                <div id="lista-lixeira-dev">Carregando...</div>
+            </div>
+
+            <!-- ABA 3: BANIDOS -->
+            <div id="abaBanidos" class="conteudo-aba-dev" style="display: none;">
+                <h2>🚫 Usuários Banidos</h2>
+                <button onclick="window.banirUsuario()" class="btn-vermelho" style="width: 100%; margin-bottom: 10px;">+ Banir Novo E-mail</button>
+                <div id="lista-banidos-dev">Carregando...</div>
+            </div>
+
+            <!-- ABA 4: GERENCIAR LOJA VIP -->
+            <div id="abaLojaDev" class="conteudo-aba-dev" style="display: none;">
+                <h2>🛍️ Adicionar Produto - Loja VIP</h2>
+                <input type="text" id="p-nome" placeholder="Nome do Produto (Ex: Arte Exclusiva)">
+                <input type="text" id="p-valor" placeholder="Valor (Ex: Grátis, 10 Pontos)">
+                <div class="linha-dupla">
+                    <input type="number" id="p-estoque" placeholder="Estoque (Ex: 20)">
+                    <input type="datetime-local" id="p-validade" title="Data/Hora que o item some da loja">
+                </div>
+                <button onclick="window.salvarProduto()" class="btn-verde" style="width: 100%; margin-top: 5px;">Adicionar à Loja</button>
+                
+                <hr>
+                <h2>🔑 Código de Acesso da Loja VIP</h2>
+                <input type="text" id="codigo-loja-atual" readonly style="background: #2a0052; color: #ffcc00; text-align: center; font-weight: bold;" value="Carregando...">
+                <input type="text" id="novo-codigo-loja" placeholder="Novo código (Ex: PURPLE_VIP)">
+                <button onclick="window.alterarCodigoLoja()" class="btn-verde" style="width: 100%; margin-top: 5px;">Mudar Código</button>
+
+                <hr>
+                <h3>Itens Cadastrados</h3>
+                <div id="lista-produtos-dev" style="margin-top: 15px;">Carregando produtos...</div>
+            </div>
+
+            <!-- ABA 5: CONFIGURAÇÕES GERAIS (Meetups) -->
+            <div id="abaGeral" class="conteudo-aba-dev" style="display: none;">
+                <h2>📡 Atualizar Status</h2>
+                <select id="select-meetup"><option value="">Carregando...</option></select>
+                <input type="text" id="novo-status" placeholder="Ex: Galera, vou atrasar 10 minutinhos!">
+                <button onclick="window.atualizarStatus()" class="btn-verde" style="width: 100%; margin-top:5px;">Atualizar Status</button>
+
+                <hr>
+                <h2>📅 Criar Novo Meetup</h2>
+                <input type="text" id="m-nome" placeholder="Nome do Evento">
+                <input type="number" id="m-preco" placeholder="Preço (Ex: 20)">
+                <div class="linha-dupla">
+                    <input type="date" id="m-data"><input type="time" id="m-horario">
+                </div>
+                <input type="text" id="m-link" placeholder="Link (meet.google.com/...)">
+                <button onclick="window.salvarMeetup()" class="btn-verde" style="width: 100%; margin-top: 5px;">Criar Meetup</button>
+                
+                <hr>
+                <h2>🗑️ Gerenciar Meetups</h2>
+                <div id="lista-gerenciar-meetups"></div>
+            </div>
+
         </div>
     </div>
 
@@ -108,11 +145,18 @@
             if (user) {
                 document.getElementById('tela-carregamento').style.display = 'none';
                 document.getElementById('painel-admin').style.display = 'block';
-                window.carregarPedidos(); window.carregarMeetupsSelect(); window.carregarGerenciamentoMeetups(); window.carregarCodigoAtual(); window.carregarProdutosDev();
+                window.carregarPedidos(); window.carregarMeetupsSelect(); window.carregarGerenciamentoMeetups(); window.carregarCodigoAtual(); window.carregarProdutosDev(); window.carregarBanidos();
             } else { window.location.href = 'index.html'; }
         });
 
         window.sairAdmin = async function() { await signOut(auth); }
+
+        // --- SISTEMA DE ABAS DO DEV ---
+        window.abrirAbaDev = function(nomeDaAba) {
+            let abas = document.querySelectorAll('.conteudo-aba-dev');
+            abas.forEach(aba => aba.style.display = 'none');
+            document.getElementById(nomeDaAba).style.display = 'block';
+        };
 
         // --- GESTÃO DA LOJA VIP ---
         window.salvarProduto = async function() {
@@ -153,7 +197,7 @@
             }
         }
 
-        // --- OUTRAS FUNÇÕES DE ADMIN ---
+        // --- CÓDIGO DA LOJA VIP ---
         window.carregarCodigoAtual = async function() {
             const docSnap = await getDoc(doc(db, "lojaConfig", "acesso"));
             document.getElementById('codigo-loja-atual').value = docSnap.exists() ? "Código Atual: " + docSnap.data().codigo : "Nenhum código";
@@ -165,10 +209,35 @@
             alert("Código alterado!"); window.carregarCodigoAtual(); document.getElementById('novo-codigo-loja').value = '';
         }
 
+        // --- SISTEMA DE BANIDOS ---
+        window.carregarBanidos = async function() {
+            const container = document.getElementById('lista-banidos-dev');
+            const snap = await getDocs(collection(db, "banidos"));
+            container.innerHTML = "";
+            snap.forEach(d => {
+                container.innerHTML += `<div class="pedido-card"><span>${d.data().email}</span> <button onclick="window.desbanir('${d.id}')" class="btn-verde">Desbanir</button></div>`;
+            });
+        }
+
+        window.banirUsuario = async function() {
+            const email = prompt("Digite o e-mail exato para banir:");
+            if(email) {
+                await addDoc(collection(db, "banidos"), { email: email.toLowerCase() });
+                window.carregarBanidos();
+            }
+        }
+
+        window.desbanir = async function(id) {
+            if(confirm("Tem certeza que deseja desbanir este usuário?")) {
+                await deleteDoc(doc(db, "banidos", id)); window.carregarBanidos();
+            }
+        }
+
+        // --- IMAGEM FULLSCREEN ---
         window.abrirImagemFullscreen = function(src) { document.getElementById('imagemAmpliada').src = src; document.getElementById('modalImagemFullscreen').style.display = 'flex'; }
         window.fecharImagemFullscreen = function() { document.getElementById('modalImagemFullscreen').style.display = 'none'; }
 
-        // Mesmas funções de Meetup e Pedidos do código anterior (Resumidas para focar na Loja)
+        // --- GESTÃO DE MEETUPS E PEDIDOS ---
         window.carregarGerenciamentoMeetups = async function() {
             const container = document.getElementById('lista-gerenciar-meetups');
             const snap = await getDocs(collection(db, "meetups"));
@@ -180,24 +249,43 @@
         window.deletarMeetup = async function(id) { if(confirm("Apagar?")) { await deleteDoc(doc(db, "meetups", id)); window.carregarGerenciamentoMeetups(); window.carregarMeetupsSelect(); } }
 
         window.carregarPedidos = async function() {
-            const container = document.getElementById('lista-pedidos');
+            const containerPedidos = document.getElementById('lista-pedidos');
+            const containerLixeira = document.getElementById('lista-lixeira-dev');
             const snap = await getDocs(collection(db, "pedidos"));
-            container.innerHTML = "";
+            
+            containerPedidos.innerHTML = "";
+            containerLixeira.innerHTML = "";
+
             snap.forEach((d) => {
                 const dados = d.data();
                 const email = dados.email || 'N/A';
                 let imgTag = dados.comprovanteFoto ? `<img src="${dados.comprovanteFoto}" class="img-comprovante" onclick="window.abrirImagemFullscreen('${dados.comprovanteFoto}')">` : '<p>Sem imagem</p>';
-                container.innerHTML += `
+                
+                let cardHTML = `
                     <div class="pedido-card" style="flex-direction: column; align-items: flex-start; width: 90%;">
                         <div><strong>Nome:</strong> ${dados.nome} | <strong>Email:</strong> ${email} | <strong>Status:</strong> ${dados.status}</div>
                         ${imgTag}
-                        <div style="margin-top: 10px;">
-                            <button onclick="window.aceitarPedido('${d.id}')" class="btn-verde">Aceitar</button>
-                            <button onclick="window.recusarPedido('${d.id}')" class="btn-vermelho">Recusar</button>
-                        </div>
-                    </div>`;
+                        <div style="margin-top: 10px;">`;
+
+                if (dados.status === "Aguardando Aprovação" || dados.status === "Aprovado") {
+                    if(dados.status === "Aprovado") {
+                        cardHTML += `<span style="color: #32cd32; font-weight:bold; margin-right: 10px;">✔️ Aprovado</span>`;
+                    } else {
+                        cardHTML += `<button onclick="window.aceitarPedido('${d.id}')" class="btn-verde">Aceitar</button>`;
+                    }
+                    cardHTML += `<button onclick="window.recusarPedido('${d.id}')" class="btn-vermelho" style="margin-left: 5px;">Recusar</button>
+                        </div></div>`;
+                    containerPedidos.innerHTML += cardHTML;
+                } else if (dados.status === "Recusado") {
+                    cardHTML += `
+                            <span style="color: #ff4444; font-weight:bold; margin-right: 10px;">❌ Recusado</span>
+                            <button onclick="window.aceitarPedido('${d.id}')" class="btn-verde">Restaurar (Aceitar)</button>
+                        </div></div>`;
+                    containerLixeira.innerHTML += cardHTML;
+                }
             });
         }
+        
         window.aceitarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Aprovado" }); window.carregarPedidos(); }
         window.recusarPedido = async function(id) { await updateDoc(doc(db, "pedidos", id), { status: "Recusado" }); window.carregarPedidos(); }
 
