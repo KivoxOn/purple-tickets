@@ -29,6 +29,31 @@
         .caixa-status h2 { font-size: 24px; margin: 0 0 15px 0; color: #2a0052; font-weight: bold; }
         .caixa-status p { font-size: 16px; margin: 0; line-height: 1.4; }
 
+        /* Estilo moderno e elegante para o botão de garantir ingresso / assistir */
+        .btn-comprar {
+            background: linear-gradient(135deg, #8a2be2, #6a0dad);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(138, 43, 226, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-comprar:hover {
+            background: linear-gradient(135deg, #9932cc, #7a1fa2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(138, 43, 226, 0.6);
+        }
+        .btn-comprar:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(138, 43, 226, 0.4);
+        }
+
         .dev-box-btn { background: #ff00ff; color: #000000; font-family: monospace; font-weight: bold; font-size: 14px; padding: 4px 10px; border: 2.5px solid #000000; display: inline-block; margin-top: 60px; cursor: pointer; user-select: none; }
         .dev-box-btn:active { transform: scale(0.95); }
 
@@ -69,7 +94,7 @@
             <div style="background: #111; padding: 25px 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
                 <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🎬 EPISÓDIOS EXCLUSIVOS</h2>
                 <p style="color: #d1b3ff; font-size: 14px;">Insira seu Gmail aprovado e a senha secreta do episódio para assistir.</p>
-                <div id="lista-episodios-site" style="margin-top: 20px;">
+                <div id="lista-episodios" style="margin-top: 20px;">
                     <p style="color: white;">Carregando episódios...</p>
                 </div>
             </div>
