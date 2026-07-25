@@ -15,12 +15,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Variáveis de controle de compra
-let tipoCompra = ""; // 'meetup' ou 'loja'
 let meetupSelecionadoId = null;
-let produtoSelecionadoId = null;
-let produtoSelecionadoNome = null;
-let produtoEstoqueAtual = 0;
 
 // --- NAVEGAÇÃO DE ABAS DO SITE ---
 window.mudarAba = function(aba) {
@@ -37,103 +32,11 @@ window.mudarAba = function(aba) {
         const elBtn = document.getElementById('btn-status');
         if (elAba) elAba.classList.add('ativa');
         if (elBtn) elBtn.classList.add('active');
-    } else if (aba === 'loja') {
-        const elAba = document.getElementById('aba-loja');
-        const elBtn = document.getElementById('btn-loja');
+    } else if (aba === 'episodios') {
+        const elAba = document.getElementById('aba-episodios');
+        const elBtn = document.getElementById('btn-episodios');
         if (elAba) elAba.classList.add('ativa');
         if (elBtn) elBtn.classList.add('active');
-    }
-};
-
-// --- CARREGAR LOJA VIP ---
-window.abrirLojaVIP = async function() {
-    window.mudarAba('loja');
-    const container = document.getElementById('lista-produtos-loja');
-    if (!container) return;
-    
-    container.innerHTML = "<p style='color: white;'>Carregando itens exclusivos...</p>";
-
-    try {
-        const snap = await getDocs(collection(db, "produtosLoja"));
-        container.innerHTML = "";
-
-        if (snap.empty) {
-            container.innerHTML = "<p style='color: #d1b3ff;'>Nenhum item VIP disponível no momento.</p>";
-            return;
-        }
-
-        const agora = new Date();
-
-        snap.forEach(docSnap => {
-            const item = docSnap.data();
-            const dataValidade = item.validade ? new Date(item.validade) : null;
-            const expirado = dataValidade && agora > dataValidade;
-
-            if (!expirado) {
-                const esgotado = item.estoque <= 0;
-                const btnHtml = esgotado 
-                    ? `<button class="btn-comprar btn-esgotado" disabled>ESGOTADO</button>` 
-                    : `<button class="btn-comprar" onclick="window.pedirCodigoLoja('${docSnap.id}', '${item.nome}', ${item.estoque})">Comprar Item</button>`;
-
-                container.innerHTML += `
-                    <div class="item-lista">
-                        <div>
-                            <strong>${item.nome}</strong><br>
-                            <small style="color: #ccc;">Valor: ${item.valor} | Estoque: ${item.estoque}</small>
-                        </div>
-                        ${btnHtml}
-                    </div>
-                `;
-            }
-        });
-    } catch (error) {
-        console.error("Erro ao carregar Loja VIP:", error);
-        container.innerHTML = "<p style='color: #ff4444;'>Erro ao carregar produtos.</p>";
-    }
-};
-
-// --- VERIFICAÇÃO DE CÓDIGO DA LOJA VIP ---
-window.pedirCodigoLoja = async function(id, nome, estoque) {
-    if (estoque <= 0) {
-        return alert("❌ Ops! Este item já está esgotado.");
-    }
-
-    const codigoDigitado = prompt(`🔒 Item: ${nome}\n\nDigite o código de acesso da Loja VIP para continuar:`);
-    if (!codigoDigitado) return; // Se cancelar, não faz nada
-
-    try {
-        // Valida o código no Firebase na coleção lojaConfig
-        const configSnap = await getDocs(collection(db, "lojaConfig"));
-        let codigoValido = false;
-
-        configSnap.forEach(d => {
-            const dados = d.data();
-            // Verifica nos campos comuns onde o código costuma ficar salvo
-            if ((dados.codigo && dados.codigo.trim() === codigoDigitado.trim()) ||
-                (dados.senha && dados.senha.trim() === codigoDigitado.trim()) ||
-                (dados.texto && dados.texto.trim() === codigoDigitado.trim())) {
-                codigoValido = true;
-            }
-        });
-
-        if (configSnap.empty) {
-            return alert("⚠️ Nenhuma configuração de código encontrada no banco de dados.");
-        }
-
-        if (!codigoValido) {
-            return alert("❌ Código de acesso incorreto!");
-        }
-
-        // Se o código estiver correto, abre as 4 etapas de compra!
-        tipoCompra = 'loja';
-        produtoSelecionadoId = id;
-        produtoSelecionadoNome = nome;
-        produtoEstoqueAtual = estoque;
-        iniciarModal();
-
-    } catch (err) {
-        console.error("Erro ao validar código:", err);
-        alert("❌ Erro ao validar o código no servidor.");
     }
 };
 
@@ -183,11 +86,91 @@ async function carregarMeetups() {
 }
 
 // ==========================================
-// JANELA DE 4 ETAPAS BLINDADA
+// NOVA SESSÃO: PRÉ-LANÇAMENTOS DE EPISÓDIOS
+// ==========================================
+
+window.abrirEpisodios = async function() {
+    window.mudarAba('episodios');
+    const container = document.getElementById('lista-episodios');
+    if (!container) return;
+    
+    container.innerHTML = "<p style='color: white;'>Carregando episódios...</p>";
+
+    try {
+        const snap = await getDocs(collection(db, "episodios"));
+        container.innerHTML = "";
+
+        if (snap.empty) {
+            container.innerHTML = "<p style='color: #d1b3ff;'>Nenhum episódio em pré-lançamento no momento.</p>";
+            return;
+        }
+
+        snap.forEach(docSnap => {
+            const ep = docSnap.data();
+            
+            container.innerHTML += `
+                <div class="item-lista" style="flex-direction: column; text-align: center; gap: 15px;">
+                    <img src="${ep.thumb}" alt="Thumbnail do Episódio" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <div>
+                        <strong style="font-size: 1.2rem;">${ep.nome}</strong>
+                    </div>
+                    <button class="btn-comprar" style="width: 100%;" onclick="window.tentarAssistir('${ep.youtubeLink}')">🎬 Assistir Pré-lançamento</button>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error("Erro ao carregar Episódios:", error);
+        container.innerHTML = "<p style='color: #ff4444;'>Erro ao carregar a lista de episódios.</p>";
+    }
+};
+
+window.tentarAssistir = async function(youtubeLink) {
+    const emailDigitado = prompt("📧 Para acessar o modo Teatro, digite seu Gmail:");
+    if (!emailDigitado) return;
+
+    const senhaDigitada = prompt("🔒 Digite a senha VIP da Purple Studios:");
+    if (!senhaDigitada) return;
+
+    try {
+        // Checa se o usuário está banido antes de qualquer coisa
+        const banidosSnap = await getDocs(collection(db, "banidos"));
+        let banido = false;
+        banidosSnap.forEach(d => {
+            if (d.data().email === emailDigitado.toLowerCase().trim()) banido = true;
+        });
+
+        if (banido) {
+            return alert("🚫 Seu e-mail está banido e não tem permissão para assistir aos episódios.");
+        }
+
+        // Valida a senha VIP na coleção de segurança
+        const configSnap = await getDocs(collection(db, "episodiosConfig"));
+        let acessoLiberado = false;
+
+        configSnap.forEach(d => {
+            if (d.data().senha === senhaDigitada.trim()) {
+                acessoLiberado = true;
+            }
+        });
+
+        if (acessoLiberado) {
+            alert("✅ Acesso Liberado! Aproveite o episódio sem anúncios!");
+            window.open(youtubeLink, '_blank'); // Abre o YouTube em uma nova aba
+        } else {
+            alert("❌ Senha VIP incorreta. Acesso negado.");
+        }
+
+    } catch (err) {
+        console.error("Erro ao validar acesso ao episódio:", err);
+        alert("❌ Erro no servidor ao validar o acesso.");
+    }
+};
+
+// ==========================================
+// JANELA DE 4 ETAPAS (APENAS PARA TICKETS AGORA)
 // ==========================================
 
 window.abrirModalCompraMeetup = function(id) {
-    tipoCompra = 'meetup';
     meetupSelecionadoId = id;
     iniciarModal();
 };
@@ -263,7 +246,6 @@ window.finalizarCompra = async function() {
     const email = emailEl ? emailEl.value.trim().toLowerCase() : "";
     const idioma = idiomaEl ? idiomaEl.value : "Português";
 
-    // Checa se está banido
     try {
         const banidosSnap = await getDocs(collection(db, "banidos"));
         let banido = false;
@@ -272,7 +254,7 @@ window.finalizarCompra = async function() {
         });
 
         if (banido) {
-            return alert("🚫 Seu e-mail está banido do sistema da Purple Studios.");
+            return alert("🚫 Seu e-mail está banido do sistema.");
         }
     } catch (e) {
         console.error("Erro ao verificar banidos:", e);
@@ -283,35 +265,15 @@ window.finalizarCompra = async function() {
         const fotoBase64 = e.target.result;
 
         try {
-            if (tipoCompra === 'meetup') {
-                await addDoc(collection(db, "pedidos"), {
-                    meetupId: meetupSelecionadoId,
-                    nome: nome,
-                    email: email,
-                    idioma: idioma,
-                    comprovanteFoto: fotoBase64,
-                    status: "Aguardando Aprovação",
-                    dataPedido: new Date().toISOString()
-                });
-            } else if (tipoCompra === 'loja') {
-                // Diminui o estoque do produto
-                const produtoRef = doc(db, "produtosLoja", produtoSelecionadoId);
-                await updateDoc(produtoRef, {
-                    estoque: produtoEstoqueAtual - 1
-                });
-
-                // Salva o pedido na aba de pedidos da loja
-                await addDoc(collection(db, "pedidosLojaVip"), {
-                    produtoId: produtoSelecionadoId,
-                    produtoNome: produtoSelecionadoNome,
-                    nomeComprador: nome,
-                    emailComprador: email,
-                    idioma: idioma,
-                    comprovanteFoto: fotoBase64,
-                    status: "Aguardando Aprovação",
-                    dataCompra: new Date().toISOString()
-                });
-            }
+            await addDoc(collection(db, "pedidos"), {
+                meetupId: meetupSelecionadoId,
+                nome: nome,
+                email: email,
+                idioma: idioma,
+                comprovanteFoto: fotoBase64,
+                status: "Aguardando Aprovação",
+                dataPedido: new Date().toISOString()
+            });
 
             const et3 = document.getElementById('etapa3');
             const et4 = document.getElementById('etapa4');
