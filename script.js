@@ -86,7 +86,7 @@ async function carregarMeetups() {
 }
 
 // ==========================================
-// NOVA SESSÃO: PRÉ-LANÇAMENTOS DE EPISÓDIOS
+// PRÉ-LANÇAMENTOS DE EPISÓDIOS
 // ==========================================
 
 window.abrirEpisodios = async function() {
@@ -132,7 +132,7 @@ window.tentarAssistir = async function(youtubeLink) {
     if (!senhaDigitada) return;
 
     try {
-        // Checa se o usuário está banido antes de qualquer coisa
+        // Checa se o usuário está banido
         const banidosSnap = await getDocs(collection(db, "banidos"));
         let banido = false;
         banidosSnap.forEach(d => {
@@ -143,7 +143,7 @@ window.tentarAssistir = async function(youtubeLink) {
             return alert("🚫 Seu e-mail está banido e não tem permissão para assistir aos episódios.");
         }
 
-        // Valida a senha VIP na coleção de segurança
+        // Valida a senha VIP
         const configSnap = await getDocs(collection(db, "episodiosConfig"));
         let acessoLiberado = false;
 
@@ -155,7 +155,7 @@ window.tentarAssistir = async function(youtubeLink) {
 
         if (acessoLiberado) {
             alert("✅ Acesso Liberado! Aproveite o episódio sem anúncios!");
-            window.open(youtubeLink, '_blank'); // Abre o YouTube em uma nova aba
+            window.open(youtubeLink, '_blank');
         } else {
             alert("❌ Senha VIP incorreta. Acesso negado.");
         }
@@ -167,7 +167,7 @@ window.tentarAssistir = async function(youtubeLink) {
 };
 
 // ==========================================
-// JANELA DE 4 ETAPAS (APENAS PARA TICKETS AGORA)
+// JANELA DE 4 ETAPAS (TICKETS DE MEETUPS)
 // ==========================================
 
 window.abrirModalCompraMeetup = function(id) {
