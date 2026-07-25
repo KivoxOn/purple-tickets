@@ -29,13 +29,6 @@
         .caixa-status h2 { font-size: 24px; margin: 0 0 15px 0; color: #2a0052; font-weight: bold; }
         .caixa-status p { font-size: 16px; margin: 0; line-height: 1.4; }
 
-        .item-lista { background: white; color: black; border-radius: 10px; padding: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; text-align: left; }
-        
-        .btn-comprar { background: #00cc66; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .btn-comprar:hover { background: #00b359; }
-        .btn-comprar:active { transform: scale(0.95); }
-        .btn-esgotado { background: #555; color: #aaa; cursor: not-allowed; box-shadow: none; }
-
         .dev-box-btn { background: #ff00ff; color: #000000; font-family: monospace; font-weight: bold; font-size: 14px; padding: 4px 10px; border: 2.5px solid #000000; display: inline-block; margin-top: 60px; cursor: pointer; user-select: none; }
         .dev-box-btn:active { transform: scale(0.95); }
 
@@ -49,7 +42,7 @@
     <div class="TOP-BAR">
         <button id="btn-meetups" class="btn-aba active" onclick="window.mudarAba('meetups')">🎟️ Meetups</button>
         <button id="btn-status" class="btn-aba" onclick="window.mudarAba('status')">📡 Status</button>
-        <button id="btn-loja" class="btn-aba" onclick="window.abrirLojaVIP()" style="background: #111; color: #ff00ff; border: 2px solid #ff00ff;">🛒 Loja VIP</button>
+        <button id="btn-episodios" class="btn-aba" onclick="window.mudarAba('episodios')" style="background: #111; color: #ff00ff; border: 2px solid #ff00ff;">🎬 Episódios</button>
     </div>
 
     <div class="titulo-container">
@@ -71,12 +64,13 @@
             </div>
         </div>
 
-        <div id="aba-loja" class="tab-content">
-            <div style="background: #111; padding: 30px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
-                <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🛒 LOJA SECRETA VIP</h2>
-                <p style="color: #d1b3ff; font-size: 15px;">Itens de edição limitada exclusivos para quem comprou ingressos e participou!</p>
-                <div id="lista-produtos-loja" style="margin-top: 20px;">
-                    <p style="color: white;">Buscando itens no cofre...</p>
+        <!-- ABA DE EPISÓDIOS NO SITE -->
+        <div id="aba-episodios" class="tab-content">
+            <div style="background: #111; padding: 25px 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #ff00ff;">
+                <h2 style="color: #ff00ff; margin-top: 0; font-weight: 900; font-size: 24px;">🎬 EPISÓDIOS EXCLUSIVOS</h2>
+                <p style="color: #d1b3ff; font-size: 14px;">Insira seu Gmail aprovado e a senha secreta do episódio para assistir.</p>
+                <div id="lista-episodios-site" style="margin-top: 20px;">
+                    <p style="color: white;">Carregando episódios...</p>
                 </div>
             </div>
         </div>
@@ -97,29 +91,24 @@
     <div id="compraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index: 2000;">
         <div style="background:white; padding:20px; border-radius:15px; color:black; text-align:center; max-width: 350px; width: 90%; border: 3px solid #7a28cb;">
             
-            <!-- ETAPA 0 COM OS LINKS CORRIGIDOS E SEPARADOS -->
             <div id="etapa0">
                 <h3 style="color:#7a28cb; margin-top:0;">Termos do Meetup</h3>
                 <div style="text-align: left; margin: 15px 0; font-size:15px; padding-left: 10px;">
-                    
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                         <input type="checkbox" id="checkTermos" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
                         <label for="checkTermos" style="cursor: pointer; margin: 0; color: black;">Eu concordo com os </label>
                         <a href="termos.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Termos</a>
                     </div>
-                    
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                         <input type="checkbox" id="checkReembolso" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
                         <label for="checkReembolso" style="cursor: pointer; margin: 0; color: black;">Estou ciente do </label>
                         <a href="reembolso.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Reembolso</a>
                     </div>
-                    
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                         <input type="checkbox" id="checkRegras" style="cursor: pointer; width: 18px; height: 18px; flex-shrink: 0;">
                         <label for="checkRegras" style="cursor: pointer; margin: 0; color: black;">Vou respeitar as </label>
                         <a href="regras.html" target="_blank" style="color: #ff00ff; text-decoration: underline; cursor: pointer; font-weight: bold; position: relative; z-index: 10;">Regras</a>
                     </div>
-
                 </div>
                 <button onclick="window.irParaEtapa1()" style="background:#00cc66; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:8px;">Continuar</button>
                 <button onclick="window.fecharCompra()" style="background:#ff4444; color:white; padding:10px; border:none; border-radius:5px; width:100%; font-weight:bold; cursor:pointer;">Cancelar</button>
