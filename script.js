@@ -38,7 +38,7 @@ window.mudarAba = function(aba) {
         if (elAba) elAba.classList.add('ativa');
         if (elBtn) elBtn.classList.add('active');
         
-        // 🚀 Chama o carregamento dos episódios ao clicar na aba
+        // 🚀 CORREÇÃO: Chama o carregamento dos episódios ao clicar na aba!
         carregarEpisodios();
     }
 };
@@ -162,17 +162,9 @@ window.tentarAssistir = async function(youtubeLink) {
         const configSnap = await getDocs(collection(db, "episodiosConfig"));
         let acessoLiberado = false;
 
-        // 🚨 VERIFICAÇÃO DE SEGURANÇA 🚨
-        if (configSnap.empty) {
-            return alert("❌ ERRO DEV: A coleção 'episodiosConfig' está vazia no Firebase!");
-        }
-
         configSnap.forEach(d => {
-            // Pega a senha do banco, aceita variações de nome
+            // Pega a senha do banco, aceita variações de nome e força a virar Texto (String)
             let senhaDoBanco = d.data().senha || d.data().senhaVip || d.data().senhaVIP;
-            
-            // 🕵️ ALERTA DE DETETIVE: Mostra na tela o que o código está vendo!
-            alert("🕵️ DEBUG DO SISTEMA:\n\n1. O banco enviou: " + senhaDoBanco + "\n2. Você digitou: " + senhaDigitada);
             
             // Compara as duas convertendo ambas para string e tirando espaços
             if (String(senhaDoBanco).trim() === String(senhaDigitada).trim()) {
