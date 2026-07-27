@@ -163,7 +163,11 @@ window.tentarAssistir = async function(youtubeLink) {
         let acessoLiberado = false;
 
         configSnap.forEach(d => {
-            if (d.data().senha === senhaDigitada.trim()) {
+            // Pega a senha do banco, aceita variações de nome e força a virar Texto (String)
+            let senhaDoBanco = d.data().senha || d.data().senhaVip || d.data().senhaVIP;
+            
+            // Compara as duas convertendo ambas para string e tirando espaços
+            if (String(senhaDoBanco).trim() === String(senhaDigitada).trim()) {
                 acessoLiberado = true;
             }
         });
