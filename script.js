@@ -37,6 +37,9 @@ window.mudarAba = function(aba) {
         const elBtn = document.getElementById('btn-episodios');
         if (elAba) elAba.classList.add('ativa');
         if (elBtn) elBtn.classList.add('active');
+        
+        // 🚀 CORREÇÃO: Chama o carregamento dos episódios ao clicar na aba!
+        carregarEpisodios();
     }
 };
 
@@ -89,8 +92,7 @@ async function carregarMeetups() {
 // PRÉ-LANÇAMENTOS DE EPISÓDIOS
 // ==========================================
 
-window.abrirEpisodios = async function() {
-    window.mudarAba('episodios');
+async function carregarEpisodios() {
     const container = document.getElementById('lista-episodios');
     if (!container) return;
     
@@ -108,13 +110,18 @@ window.abrirEpisodios = async function() {
         snap.forEach(docSnap => {
             const ep = docSnap.data();
             
+            // Suporte para variação nos nomes dos campos do banco
+            const nome = ep.nome || ep.titulo || "Episódio";
+            const thumb = ep.thumb || ep.thumbnail || "https://via.placeholder.com/300x160?text=Sem+Imagem";
+            const link = ep.youtubeLink || ep.link || ep.url || "";
+
             container.innerHTML += `
-                <div class="item-lista" style="flex-direction: column; text-align: center; gap: 15px;">
-                    <img src="${ep.thumb}" alt="Thumbnail do Episódio" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                <div class="item-lista" style="flex-direction: column; text-align: center; gap: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                    <img src="${thumb}" alt="Thumbnail do Episódio" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
                     <div>
-                        <strong style="font-size: 1.2rem;">${ep.nome}</strong>
+                        <strong style="font-size: 1.2rem; color: #ff00ff;">${nome}</strong>
                     </div>
-                    <button class="btn-comprar" style="width: 100%;" onclick="window.tentarAssistir('${ep.youtubeLink}')">🎬 Assistir Pré-lançamento</button>
+                    <button class="btn-comprar" style="width: 100%;" onclick="window.tentarAssistir('${link}')">🎬 Assistir Pré-lançamento</button>
                 </div>
             `;
         });
@@ -122,9 +129,17 @@ window.abrirEpisodios = async function() {
         console.error("Erro ao carregar Episódios:", error);
         container.innerHTML = "<p style='color: #ff4444;'>Erro ao carregar a lista de episódios.</p>";
     }
+}
+
+window.abrirEpisodios = function() {
+    window.mudarAba('episodios');
 };
 
 window.tentarAssistir = async function(youtubeLink) {
+    if (!youtubeLink) {
+        return alert("⚠️ Link do vídeo não encontrado para este episódio.");
+    }
+
     const emailDigitado = prompt("📧 Para acessar o modo Teatro, digite seu Gmail:");
     if (!emailDigitado) return;
 
